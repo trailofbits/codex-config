@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fix GitHub Issue"
+  short_description: "Plan, implement, verify, and open a PR for a GitHub issue."
+  default_prompt: "Use $fix-github-issue to fix issue #"

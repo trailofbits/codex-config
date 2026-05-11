@@ -1,0 +1,119 @@
+# Codex configuration template.
+#
+# Copy or merge this into ~/.codex/config.toml. Keep root keys before tables;
+# TOML requires table sections to come after top-level settings.
+
+model = "gpt-5.5"
+review_model = "gpt-5.5"
+model_reasoning_effort = "high"
+plan_mode_reasoning_effort = "high"
+model_reasoning_summary = "auto"
+personality = "pragmatic"
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+# Custom org profile: workspace write access, temp writes, and deny-read rules
+# for common secret locations. Use `~/...` here; `$HOME/...` is not expanded.
+default_permissions = "org-workspace"
+allow_login_shell = true
+
+web_search = "cached"
+check_for_update_on_startup = true
+project_doc_max_bytes = 32768
+cli_auth_credentials_store = "keyring"
+mcp_oauth_credentials_store = "keyring"
+
+# Migration aid: keeps Codex useful in repos that have not yet renamed CLAUDE.md
+# to AGENTS.md. Prefer adding AGENTS.md over relying on this long term.
+project_doc_fallback_filenames = ["CLAUDE.md"]
+
+[sandbox_workspace_write]
+writable_roots = []
+network_access = false
+exclude_tmpdir_env_var = false
+exclude_slash_tmp = false
+
+[permissions.org-workspace.filesystem]
+glob_scan_max_depth = 5
+":minimal" = "read"
+":tmpdir" = "write"
+":project_roots" = { "." = "write", "**/.env" = "none", "**/.env.*" = "none", "**/*.pem" = "none", "**/*.key" = "none" }
+"~/.ssh/**" = "none"
+"~/.gnupg/**" = "none"
+"~/.aws/**" = "none"
+"~/.azure/**" = "none"
+"~/.config/gh/**" = "none"
+"~/.git-credentials" = "none"
+"~/.docker/config.json" = "none"
+"~/.kube/**" = "none"
+"~/.npmrc" = "none"
+"~/.npm/**" = "none"
+"~/.pypirc" = "none"
+"~/.gem/credentials" = "none"
+"~/Library/Keychains/**" = "none"
+"~/Library/Application Support/**/metamask*/**" = "none"
+"~/Library/Application Support/**/electrum*/**" = "none"
+"~/Library/Application Support/**/exodus*/**" = "none"
+"~/Library/Application Support/**/phantom*/**" = "none"
+"~/Library/Application Support/**/solflare*/**" = "none"
+
+[permissions.org-workspace.network]
+enabled = false
+
+[shell_environment_policy]
+inherit = "all"
+ignore_default_excludes = false
+exclude = []
+set = {}
+include_only = []
+
+[history]
+persistence = "save-all"
+
+[tui]
+notifications = true
+notification_condition = "unfocused"
+animations = true
+show_tooltips = true
+status_line = ["model-with-reasoning", "context-remaining", "git-branch", "current-dir"]
+terminal_title = ["spinner", "project", "git-branch"]
+
+[analytics]
+enabled = false
+
+[feedback]
+enabled = false
+
+[features]
+codex_hooks = true
+multi_agent = true
+shell_snapshot = true
+unified_exec = true
+skill_mcp_dependency_install = true
+fast_mode = false
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = "bash ~/.codex/hooks/block-dangerous-command.sh"
+timeout = 30
+statusMessage = "Checking command policy"
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = "bash ~/.codex/hooks/enforce-package-manager.sh"
+timeout = 30
+statusMessage = "Checking package manager"
+
+[[hooks.PostToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = "bash ~/.codex/hooks/log-gam.sh"
+timeout = 30

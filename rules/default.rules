@@ -1,0 +1,60 @@
+# Codex exec policy rules.
+#
+# Copy to ~/.codex/rules/default.rules. Rules govern requests to run commands
+# outside the sandbox; hooks and sandboxing still matter for in-sandbox commands.
+
+prefix_rule(
+    pattern = ["rm", ["-rf", "-fr", "-Rf", "-rF"]],
+    decision = "forbidden",
+    justification = "Use `trash` instead of recursive force deletion.",
+    match = ["rm -rf build", "rm -fr tmp"],
+)
+
+prefix_rule(
+    pattern = ["sudo"],
+    decision = "prompt",
+    justification = "sudo requires explicit human review.",
+    match = ["sudo make install"],
+)
+
+prefix_rule(
+    pattern = ["mkfs"],
+    decision = "forbidden",
+    justification = "Filesystem formatting commands are not allowed from Codex.",
+    match = ["mkfs /dev/disk1"],
+)
+
+prefix_rule(
+    pattern = ["dd"],
+    decision = "forbidden",
+    justification = "Raw disk write commands are not allowed from Codex.",
+    match = ["dd if=image.iso of=/dev/disk1"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "--force"],
+    decision = "forbidden",
+    justification = "Do not force-push unless the user explicitly requested it.",
+    match = ["git push --force origin feature"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "-f"],
+    decision = "forbidden",
+    justification = "Do not force-push unless the user explicitly requested it.",
+    match = ["git push -f origin feature"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Do not discard work unless the user explicitly requested it.",
+    match = ["git reset --hard HEAD"],
+)
+
+prefix_rule(
+    pattern = ["git", "push", "origin", ["main", "master"]],
+    decision = "forbidden",
+    justification = "Use feature branches and PRs; do not push directly to main/master.",
+    match = ["git push origin main", "git push origin master"],
+)

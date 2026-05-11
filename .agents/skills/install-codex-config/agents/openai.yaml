@@ -1,0 +1,4 @@
+interface:
+  display_name: "Install Codex Config"
+  short_description: "Install or update org Codex config from local repo files."
+  default_prompt: "Use $install-codex-config to install this Codex config"

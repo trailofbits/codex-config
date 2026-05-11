@@ -1,0 +1,14 @@
+# Codex MCP server template.
+#
+# Append these sections to ~/.codex/config.toml, or add them with:
+#   codex mcp add context7 -- npx -y @upstash/context7-mcp
+#   codex mcp add exa --env EXA_API_KEY="$EXA_API_KEY" -- npx -y exa-mcp-server
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.exa]
+command = "npx"
+args = ["-y", "exa-mcp-server"]
+env_vars = ["EXA_API_KEY"]

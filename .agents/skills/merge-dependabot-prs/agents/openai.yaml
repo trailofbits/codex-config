@@ -1,0 +1,4 @@
+interface:
+  display_name: "Merge Dependabot PRs"
+  short_description: "Evaluate, batch, verify, and merge Dependabot PRs safely."
+  default_prompt: "Use $merge-dependabot-prs for "
