@@ -8,6 +8,10 @@ description: >-
 
 # Review and Fix PR
 
+## Contents
+- Workflow
+- references/workflow.md
+
 Use this skill to review a PR and carry actionable findings through to fixes.
 
 ## Workflow

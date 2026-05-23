@@ -5,16 +5,16 @@
 
 model = "gpt-5.5"
 review_model = "gpt-5.5"
-model_reasoning_effort = "high"
-plan_mode_reasoning_effort = "high"
+model_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = "xhigh"
 model_reasoning_summary = "auto"
 personality = "pragmatic"
 
 approval_policy = "on-request"
-sandbox_mode = "workspace-write"
-# Custom org profile: workspace write access, temp writes, and deny-read rules
-# for common secret locations. Use `~/...` here; `$HOME/...` is not expanded.
-default_permissions = "org-workspace"
+# Trail of Bits workspace profile: broad local reads, workspace/temp writes,
+# no command network, and deny-read rules for common secret locations. Do not
+# also set `sandbox_mode`; if present, Codex uses that instead.
+default_permissions = "tob-workspace"
 allow_login_shell = true
 
 web_search = "cached"
@@ -27,37 +27,37 @@ mcp_oauth_credentials_store = "keyring"
 # to AGENTS.md. Prefer adding AGENTS.md over relying on this long term.
 project_doc_fallback_filenames = ["CLAUDE.md"]
 
-[sandbox_workspace_write]
-writable_roots = []
-network_access = false
-exclude_tmpdir_env_var = false
-exclude_slash_tmp = false
-
-[permissions.org-workspace.filesystem]
+[permissions.tob-workspace.filesystem]
 glob_scan_max_depth = 5
-":minimal" = "read"
+":root" = "read"
 ":tmpdir" = "write"
-":project_roots" = { "." = "write", "**/.env" = "none", "**/.env.*" = "none", "**/*.pem" = "none", "**/*.key" = "none" }
-"~/.ssh/**" = "none"
-"~/.gnupg/**" = "none"
-"~/.aws/**" = "none"
-"~/.azure/**" = "none"
-"~/.config/gh/**" = "none"
-"~/.git-credentials" = "none"
-"~/.docker/config.json" = "none"
-"~/.kube/**" = "none"
-"~/.npmrc" = "none"
-"~/.npm/**" = "none"
-"~/.pypirc" = "none"
-"~/.gem/credentials" = "none"
-"~/Library/Keychains/**" = "none"
-"~/Library/Application Support/**/metamask*/**" = "none"
-"~/Library/Application Support/**/electrum*/**" = "none"
-"~/Library/Application Support/**/exodus*/**" = "none"
-"~/Library/Application Support/**/phantom*/**" = "none"
-"~/Library/Application Support/**/solflare*/**" = "none"
+"~/.ssh/**" = "deny"
+"~/.gnupg/**" = "deny"
+"~/.aws/**" = "deny"
+"~/.azure/**" = "deny"
+"~/.config/gh/**" = "deny"
+"~/.git-credentials" = "deny"
+"~/.docker/config.json" = "deny"
+"~/.kube/**" = "deny"
+"~/.npmrc" = "deny"
+"~/.npm/**" = "deny"
+"~/.pypirc" = "deny"
+"~/.gem/credentials" = "deny"
+"~/Library/Keychains/**" = "deny"
+"~/Library/Application Support/**/metamask*/**" = "deny"
+"~/Library/Application Support/**/electrum*/**" = "deny"
+"~/Library/Application Support/**/exodus*/**" = "deny"
+"~/Library/Application Support/**/phantom*/**" = "deny"
+"~/Library/Application Support/**/solflare*/**" = "deny"
 
-[permissions.org-workspace.network]
+[permissions.tob-workspace.filesystem.":workspace_roots"]
+"." = "write"
+"**/.env" = "deny"
+"**/.env.*" = "deny"
+"**/*.pem" = "deny"
+"**/*.key" = "deny"
+
+[permissions.tob-workspace.network]
 enabled = false
 
 [shell_environment_policy]
@@ -85,12 +85,14 @@ enabled = false
 enabled = false
 
 [features]
-codex_hooks = true
+hooks = true
 multi_agent = true
 shell_snapshot = true
 unified_exec = true
 skill_mcp_dependency_install = true
 fast_mode = false
+# Enables the /goal TUI loop for bounded, verifiable objectives.
+goals = true
 
 [[hooks.PreToolUse]]
 matcher = "^Bash$"

@@ -9,6 +9,10 @@ description: >-
 
 # Merge Dependabot PRs
 
+## Contents
+- Workflow
+- references/workflow.md
+
 Use this skill for controlled Dependabot PR evaluation and merging.
 
 ## Workflow
