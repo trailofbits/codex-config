@@ -8,6 +8,10 @@ description: >-
 
 # Fix GitHub Issue
 
+## Contents
+- Workflow
+- references/workflow.md
+
 Use this skill to take a GitHub issue from triage through PR creation.
 
 ## Workflow

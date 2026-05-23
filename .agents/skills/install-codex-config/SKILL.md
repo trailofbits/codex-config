@@ -9,6 +9,10 @@ description: >-
 
 # Install Codex Config
 
+## Contents
+- Workflow
+- references/workflow.md
+
 Use this skill to install or update the checked-in Codex configuration on the
 current machine.
 

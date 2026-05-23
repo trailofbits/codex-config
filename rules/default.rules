@@ -58,3 +58,17 @@ prefix_rule(
     justification = "Use feature branches and PRs; do not push directly to main/master.",
     match = ["git push origin main", "git push origin master"],
 )
+
+prefix_rule(
+    pattern = ["git"],
+    decision = "allow",
+    justification = "Routine git operations are safe; destructive variants are forbidden by more specific rules above (push --force, push -f, reset --hard, push origin main/master).",
+    match = ["git status", "git diff", "git log", "git fetch", "git show", "git branch"],
+)
+
+prefix_rule(
+    pattern = ["docker"],
+    decision = "allow",
+    justification = "Routine docker CLI operations are safe inside the sandbox. Container runtime escape is out of scope for exec policy.",
+    match = ["docker ps", "docker build .", "docker run --rm alpine", "docker logs my-container", "docker images"],
+)
