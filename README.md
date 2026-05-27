@@ -7,7 +7,7 @@ Opinionated defaults, documentation, and workflows for Codex CLI at Trail of Bit
 **First-time setup:**
 
 ```bash
-git clone https://github.com/trailofbits/codex-config.git
+git clone git@github.com:trailofbits/codex-config.git
 cd codex-config
 codex
 ```
