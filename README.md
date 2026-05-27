@@ -43,6 +43,8 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 Before configuring anything, read these to understand why this setup works the way it does:
 
 - [Codex CLI docs](https://developers.openai.com/codex) -- the official primer; config schema, sandbox model, exec policy, hooks, skills, and CLI flags
+- [Codex for Knowledge Work](https://every.to/guides/codex-for-knowledge-work) -- Every's guide to using Codex as a workspace for knowledge work, not just code
+- [Codex-maxxing](https://jxnl.github.io/blog/writing/2026/05/10/codex-maxxing/) -- Jason Liu on durable threads, memory, steering, browser/computer use, goals, and review surfaces
 - [AI-assisted coding for teams that can't get away with vibes](https://blog.nilenso.com/blog/2025/05/29/ai-assisted-coding/) -- Nilenso's playbook for teams integrating AI tools with high standards
 - [My AI Skeptic Friends Are All Nuts](https://fly.io/blog/youre-all-nuts/) -- Thomas Ptacek on why dismissing LLMs for coding is a mistake
 - [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) -- Ryan Lopopolo on how OpenAI's team shipped a million-line product with zero human-written code, and what that implies for how you structure repos, AGENTS.md files, and review loops
