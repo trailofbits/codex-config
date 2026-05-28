@@ -23,7 +23,7 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 5. Confirm sandboxing and approval policy with `codex sandbox`.
 6. Add helper aliases for cyber-preview or API-key identities if needed.
 7. Run `/goal` once on a bounded, verifiable task in the target codebase.
-8. Run the target's scanner stack and note the baseline findings before patching. For PTP-style targets, that includes Wilson and `vercel/deepsec`.
+8. Run the target's scanner stack and note the baseline findings before patching. For PTP-style targets, that includes Wilson.
 
 ## Contents
 
