@@ -101,9 +101,6 @@ skill_mcp_dependency_install = true
 fast_mode = false
 # Enables the /goal TUI loop for bounded, verifiable objectives.
 goals = true
-# Experimental: keep long TUI sessions from letting the machine idle-sleep.
-# Verify with `codex features list` before relying on it.
-# prevent_idle_sleep = true
 
 [[hooks.PreToolUse]]
 matcher = "^Bash$"
