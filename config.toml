@@ -7,6 +7,10 @@ model = "gpt-5.5"
 review_model = "gpt-5.5"
 model_reasoning_effort = "xhigh"
 plan_mode_reasoning_effort = "xhigh"
+# Optional for steering long runs: uncomment for more detailed reasoning
+# summaries if the active model supports them. This adds transcript volume.
+# model_supports_reasoning_summaries = true
+# model_reasoning_summary = "detailed"
 model_reasoning_summary = "auto"
 personality = "pragmatic"
 
@@ -20,6 +24,9 @@ allow_login_shell = true
 web_search = "cached"
 check_for_update_on_startup = true
 project_doc_max_bytes = 32768
+# On Linux VPS images without a working secret-service backend, switch both
+# stores to "auto". Use "file" only on a single-purpose disposable host because
+# it stores credentials on disk in plaintext.
 cli_auth_credentials_store = "keyring"
 mcp_oauth_credentials_store = "keyring"
 
@@ -90,9 +97,13 @@ multi_agent = true
 shell_snapshot = true
 unified_exec = true
 skill_mcp_dependency_install = true
+# Prefer parallel worktrees/sessions over fast mode by default.
 fast_mode = false
 # Enables the /goal TUI loop for bounded, verifiable objectives.
 goals = true
+# Experimental: keep long TUI sessions from letting the machine idle-sleep.
+# Verify with `codex features list` before relying on it.
+# prevent_idle_sleep = true
 
 [[hooks.PreToolUse]]
 matcher = "^Bash$"
