@@ -19,6 +19,7 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 **[Getting Started](#getting-started)**
 - [Read These First](#read-these-first)
 - [Initial Checklist](#initial-checklist)
+- [Operating Loop](#operating-loop)
 - [Prerequisites](#prerequisites)
 - [Shell Setup](#shell-setup)
 - [Settings](#settings)
@@ -32,6 +33,7 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 
 **[/goal](#goal)**
 - [When to use it](#when-to-use-it)
+- [Goals vs. skills](#goals-vs-skills)
 - [Writing a goal](#writing-a-goal)
 - [Security research goals](#security-research-goals)
 
@@ -67,6 +69,16 @@ Use this checklist after the first install and when starting in a new codebase:
 6. Decide whether the run needs the default model or a separate API-key/cyber identity.
 7. Start with one bounded, verifiable task; use `/goal` if it should survive multiple turns.
 8. Run the project's normal tests/scanners once and record baseline failures before patching.
+
+### Operating Loop
+
+The Trail of Bits Codex loop is:
+
+1. **Connect** the tools and source material the task actually needs.
+2. **Contextualize** with `AGENTS.md`, project docs, known findings, and explicit constraints.
+3. **Delegate or collaborate** based on risk: delegate repeatable, objective, checkable work; collaborate on ambiguous, judgment-heavy, or exploratory work.
+4. **Review** where the artifact will live: inspect diffs in Git, PRs in GitHub, documents in their editor, and metrics against the source of truth.
+5. **Compound** the useful parts into skills, workflows, scripts, checklists, or project instructions so the next run starts with more context.
 
 ### Prerequisites
 
@@ -331,7 +343,11 @@ Official docs: [Follow a goal](https://developers.openai.com/codex/use-cases/fol
 
 ### When to use it
 
-Use `/goal` when the work is larger than one turn, has a clear stopping condition, and can be validated by commands or artifacts. Good fits are code migrations, issue implementation, large refactors, deployment retry loops, eval or prompt optimization, prototypes, games, and bounded audit checklists. Do not use it for a loose backlog, subjective cleanup, open-ended bug hunting, or work that needs frequent human decisions. For long efforts, chain smaller goals with review between checkpoints instead of creating one giant goal.
+Use `/goal` when the work is larger than one turn, has a clear stopping condition, and can be validated by commands or artifacts. A simple test: if you would repeat the same standing instruction three turns in a row, put it in the goal. Good fits are code migrations, issue implementation, large refactors, deployment retry loops, eval or prompt optimization, prototypes, games, and bounded audit checklists. Do not use it for a loose backlog, subjective cleanup, open-ended bug hunting, or work that needs frequent human decisions. For long efforts, chain smaller goals with review between checkpoints instead of creating one giant goal.
+
+### Goals vs. skills
+
+A goal is the objective for this stretch of work. A skill is reusable expertise for a recurring class of work. Use skills to teach Codex how to do something repeatably; use `/goal` to define what done means for the current run. A goal can invoke skills, but it should still name the scope, constraints, validation, and stop condition.
 
 ### Writing a goal
 
