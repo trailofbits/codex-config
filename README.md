@@ -14,6 +14,17 @@ codex
 
 Then inside the session, run `$install-codex-config`. It walks you through installing each component, detects what you already have, and self-installs the skill so future runs work from any directory. Run it again after updates.
 
+**First three hours on a target:**
+
+1. Install this config and confirm `codex doctor --summary` is clean enough to work.
+2. Install or customize the target repo's `AGENTS.md`.
+3. Configure MCP servers such as Exa and Context7.
+4. Install the Trail of Bits skills you expect to use.
+5. Confirm sandboxing and approval policy with `codex sandbox`.
+6. Add helper aliases for cyber-preview or API-key identities if needed.
+7. Run `/goal` once on a bounded, verifiable task in the target codebase.
+8. Run the target's scanner stack and note the baseline findings before patching. For PTP-style targets, that includes Wilson and `vercel/deepsec`.
+
 ## Contents
 
 **[Getting Started](#getting-started)**
@@ -535,17 +546,6 @@ If summaries do not appear for the model you are using, uncomment `model_support
 #### Model pressure and parallelism
 
 If a preview or project-scoped model is saturated, fall back to plain `gpt-5.5` rather than waiting on one blocked session. For throughput, prefer multiple isolated worktrees and Codex sessions over trying to make one session faster.
-
-#### First three hours on a target
-
-1. Install the config and confirm `codex doctor --summary` is clean enough to work.
-2. Install or customize the target repo's `AGENTS.md`.
-3. Configure MCP servers such as Exa and Context7.
-4. Install the Trail of Bits skills you expect to use.
-5. Confirm sandboxing and approval policy with `codex sandbox`.
-6. Add helper aliases for cyber-preview or API-key identities if needed.
-7. Run `/goal` once on a bounded, verifiable task in the target codebase.
-8. Run the target's scanner stack and note the baseline findings before patching. For PTP-style targets, that includes Wilson and `vercel/deepsec`.
 
 ### Untrusted-repo posture
 
