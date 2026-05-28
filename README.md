@@ -14,6 +14,17 @@ codex
 
 Then inside the session, run `$install-codex-config`. It walks you through installing each component, detects what you already have, and self-installs the skill so future runs work from any directory. Run it again after updates.
 
+**First three hours on a target:**
+
+1. Install this config and confirm `codex doctor --summary` is clean enough to work.
+2. Install or customize the target repo's `AGENTS.md`.
+3. Configure MCP servers such as Exa and Context7.
+4. Install the Trail of Bits skills you expect to use.
+5. Confirm sandboxing and approval policy with `codex sandbox`.
+6. Add helper aliases for cyber-preview or API-key identities if needed.
+7. Run `/goal` once on a bounded, verifiable task in the target codebase.
+8. Run the target's scanner stack and note the baseline findings before patching. For PTP-style targets, that includes Wilson.
+
 ## Contents
 
 **[Getting Started](#getting-started)**
@@ -32,6 +43,7 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 **[Usage](#usage)**
 - [Per-invocation overrides](#per-invocation-overrides)
 - [Token tracking](#token-tracking)
+- [Operational playbook](#operational-playbook)
 - [Untrusted-repo posture](#untrusted-repo-posture)
 - [Containerized runs](#containerized-runs)
 - [/goal autonomous loop](#goal-autonomous-loop)
@@ -53,11 +65,24 @@ Before configuring anything, read these to understand why this setup works the w
 
 #### Codex CLI
 
+Install Codex with Homebrew:
+
 ```bash
 brew install codex
+codex --version
+codex doctor --summary
 ```
 
-Trail of Bits enforces a 7-day cooldown on npm packages, so `npm install -g @openai/codex` will always be a week behind upstream. The Homebrew Cask tracks stable releases directly.
+Do not install Codex with npm. Trail of Bits enforces a 7-day cooldown on npm packages, so `npm install -g @openai/codex` will be behind upstream. If your install looks stale or `which -a codex` shows an npm install ahead of Homebrew, remove the npm copy first:
+
+```bash
+which -a codex
+npm uninstall -g @openai/codex
+brew install codex
+codex update
+```
+
+The Homebrew package tracks stable releases directly. `codex update` is still useful after a stale install cleanup because it verifies the running CLI path.
 
 #### Terminal: Ghostty
 
@@ -427,7 +452,100 @@ Codex carries a heavier hidden harness context per turn than Claude Code -- syst
 
 ### Token tracking
 
-`npx @ccusage/codex` for daily, monthly, and session-level token usage with per-model breakdown. For authoritative billed spend, see [platform.openai.com/usage](https://platform.openai.com/usage).
+Use `/status` inside Codex for the current thread, context, and rate-limit picture. Use `npx @ccusage/codex` for daily, monthly, and session-level token usage with per-model breakdown. For authoritative billed spend, see [platform.openai.com/usage](https://platform.openai.com/usage).
+
+### Operational playbook
+
+These are field-tested fixes for specific machines and runs. Keep them out of the default config unless the machine's trust boundary matches the advice.
+
+#### Long runs and weak networks
+
+If the local network is slow or restrictive, run Codex on a disposable VPS, a [dropkit](https://github.com/trailofbits/dropkit) droplet, or a devcontainer instead of fighting the laptop network. Keep the repo, credentials, and teardown story simple.
+
+On macOS, keep the machine awake while a long session runs:
+
+```bash
+caffeinate -i codex
+```
+
+Codex also has an experimental feature flag for idle sleep prevention. Verify it exists with `codex features list` before relying on it:
+
+```toml
+[features]
+prevent_idle_sleep = true
+```
+
+If Codex hangs during startup because Git is waiting for an SSH-key passphrase before the TUI can accept keyboard input, bypass the global Git config for that launch:
+
+```bash
+GIT_CONFIG_GLOBAL=/dev/null codex
+```
+
+#### Auth and credential stores
+
+Changing API keys requires a fresh login flow; exporting `OPENAI_API_KEY` does not rewrite an active Codex session.
+
+```bash
+codex logout
+codex
+```
+
+For side-by-side identities, use a separate `CODEX_HOME` instead of rewriting one config:
+
+```bash
+mkdir -p "$HOME/.codex-api"
+alias codex-api='CODEX_HOME=$HOME/.codex-api codex -m gpt-5.5-cyber-preview'
+```
+
+On Linux VPS images without a working secret-service backend, switch both credential stores to `"auto"`:
+
+```toml
+cli_auth_credentials_store = "auto"
+mcp_oauth_credentials_store = "auto"
+```
+
+If `"auto"` still fails on a single-purpose disposable host, `"file"` works, but it stores credentials on disk in plaintext. Do not use it on a shared workstation.
+
+Relax approvals and sandboxing only inside an external sandbox such as a disposable VPS or devcontainer:
+
+```bash
+codex -a never -s danger-full-access
+```
+
+Do not put that in the shared default config.
+
+#### Plugins and marketplaces
+
+When `/plugin` fails without a useful TUI error, use the CLI so the real error is printed:
+
+```bash
+codex plugin marketplace list
+codex plugin add plugin@marketplace
+```
+
+If hardware-backed SSH auth or local Git state gets in the way, add a local marketplace checkout instead of debugging the interactive flow:
+
+```bash
+codex plugin marketplace add ./path/to/marketplace
+```
+
+#### Slash commands and steering
+
+- `/status` -- inspect thread, context, and rate-limit status.
+- `/side` -- ask a side question or get a status recap without steering the main thread.
+- `/logout` -- clear stored auth before switching between plan/OAuth and API-key identities.
+
+For more mid-run visibility, use detailed reasoning summaries per session:
+
+```bash
+codex --config model_reasoning_summary='"detailed"'
+```
+
+If summaries do not appear for the model you are using, uncomment `model_supports_reasoning_summaries = true` in `config.toml`.
+
+#### Model pressure and parallelism
+
+If a preview or project-scoped model is saturated, fall back to plain `gpt-5.5` rather than waiting on one blocked session. For throughput, prefer multiple isolated worktrees and Codex sessions over trying to make one session faster.
 
 ### Untrusted-repo posture
 
@@ -468,3 +586,11 @@ Evidence:    output, diff, report, screenshot, or other proof to show at the end
 ```
 
 Best fits: code migrations, large refactors, deployment retry loops, eval or prompt optimization, prototypes, games, and bounded audit checklists. Poor fits: open-ended bug hunting, subjective cleanup, unrelated task lists, and work that needs frequent human decisions. For long runs, chain small goals with manual review between checkpoints instead of one giant goal.
+
+For security research, harden the goal against reward hacking:
+
+- Ask Codex to convert a casual objective into a precise `/goal` prompt before starting the run.
+- Use neutral wording such as "trigger and validate the issue" instead of "prove this is exploitable."
+- Require Codex to check open issues, open PRs, and known-findings files before treating a bug as new.
+- Keep a short progress log or findings file in the repo so compaction and resumed sessions have durable state.
+- Stop after each meaningful finding for human review instead of letting one goal produce a pile of untriaged reports.
