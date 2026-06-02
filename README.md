@@ -226,6 +226,12 @@ mkdir -p ~/.codex/rules
 cp rules/default.rules ~/.codex/rules/default.rules
 ```
 
+#### `--yolo` mode
+
+**WARNING: Only enable YOLO mode in a sandbox such as a virtual machine or disposable cloud machine. Understand the risks of Codex running arbitrary commands.**
+
+You can pass `--yolo` to allow Codex to run any command without approval or sandboxing. YOLO mode disables sandboxing and the approval policy, but it does not bypass installed rules or hooks. If you run Codex in YOLO mode with this configuration installed, `rules/default.rules` can still reject commands and hooks can still block matching tool calls. For complete YOLO mode, do not install the rules or hooks from this repository.
+
 #### Standalone testing
 
 Use `codex sandbox` to test profile changes after installing the config:
