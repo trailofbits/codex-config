@@ -230,7 +230,9 @@ cp rules/default.rules ~/.codex/rules/default.rules
 
 **WARNING: Only enable YOLO mode in a sandbox such as a virtual machine or disposable cloud machine. Understand the risks of Codex running arbitrary commands.**
 
-You can pass `--yolo` to allow Codex to run any command without approval or sandboxing. YOLO mode disables sandboxing and the approval policy, but it does not bypass installed rules or hooks. If you run Codex in YOLO mode with this configuration installed, `rules/default.rules` can still reject commands and hooks can still block matching tool calls. For complete YOLO mode, do not install the rules or hooks from this repository.
+`--yolo` lets Codex run any command without approval or sandboxing. It is a hidden alias for `--dangerously-bypass-approvals-and-sandbox` (approval policy `never`, no sandbox), so `codex --help` shows the long form rather than `--yolo`.
+
+YOLO mode drops sandboxing and approvals, but it still evaluates installed rules and hooks. With this configuration installed, command requests are checked against `rules/default.rules` first, so a `forbidden` rule still rejects the command and `PreToolUse`/`PostToolUse` hooks still run. One sharp edge: `never` approvals leave a `prompt` rule with nothing to approve it, so it becomes a hard rejection -- `sudo`, for instance, is blocked outright rather than prompted. For unrestricted execution, do not install this repository's rules or hooks.
 
 #### Standalone testing
 
