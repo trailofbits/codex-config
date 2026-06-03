@@ -1,0 +1,28 @@
+# Codex profile template (auth identity switch).
+#
+# A profile overrides the model/provider/auth for a run while reusing your global
+# AGENTS.md, skills, rules, and hooks. Unlike mcp-template.toml, this is NOT
+# appended to config.toml -- it is a SEPARATE file named for the profile:
+#
+#   cp profile-template.toml ~/.codex/api.config.toml
+#   echo "sk-..." > ~/.codex/api-key.txt   # never commit API keys
+#   codex --profile api
+#
+# The profile name is the file stem ("api" above). Add more identities by
+# copying this file to a different ~/.codex/<name>.config.toml -- if you do,
+# update the api-key.txt path in the auth command below to match.
+
+model_provider = "openai-api"
+# Optional: pin a model for this identity, e.g. a -cyber model that needs an
+# API key from Trusted Access Cyber rather than a ChatGPT subscription.
+# model = "gpt-5.5-cyber-preview"
+
+[model_providers.openai-api]
+name = "OpenAI with API key"
+base_url = "https://api.openai.com/v1"
+
+# The auth command prints a bearer token to stdout. Here it reads the key file
+# next to this profile; CODEX_HOME falls back to ~/.codex when unset.
+[model_providers.openai-api.auth]
+command = "/bin/bash"
+args = ["-c", 'cat "${CODEX_HOME:-${HOME}/.codex}/api-key.txt"']

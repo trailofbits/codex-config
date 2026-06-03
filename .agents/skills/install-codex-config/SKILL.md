@@ -4,7 +4,7 @@ description: >-
   Install or update this organization's Codex configuration from repo-local
   files into the user's Codex home. Use when asked to set up, install, update,
   bootstrap, or sync this Codex configuration, including AGENTS.md, config.toml,
-  hooks, rules, MCP servers, and bundled skills.
+  hooks, rules, MCP servers, profile templates, and bundled skills.
 ---
 
 # Install Codex Config
