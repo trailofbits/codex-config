@@ -274,6 +274,8 @@ Official docs: [skills](https://developers.openai.com/codex/skills).
 
 Codex skills live in `~/.agents/skills/` and are loaded into the session as workflows the agent can invoke. They're closer to Claude's plugin model than to slash commands -- a skill bundles a `SKILL.md` (the agent-facing instructions) with `references/` (longer-form content the agent loads on demand) and `agents/openai.yaml` (interface metadata).
 
+The `SKILL.md` format is shared across tools, and Codex also reads Claude Code marketplaces and the common `~/.agents/skills/` location, so Trail of Bits skills written for either agent generally work in both. The exception is hooks, which do not reliably port between Codex and Claude -- keep tool-specific guardrails in each tool's own config.
+
 Four skills ship in this repo under `.agents/skills/`:
 
 | Skill | What it does |
@@ -384,6 +386,7 @@ For security research, harden the goal against reward hacking:
 - Require Codex to check open issues, open PRs, and known-findings files before treating a bug as new.
 - Keep a short progress log or findings file in the repo so compaction and resumed sessions have durable state.
 - Stop after each meaningful finding for human review instead of letting one goal produce a pile of untriaged reports.
+- Measure what the agent actually read. After an audit pass, run [trailofbits/aicov](https://github.com/trailofbits/aicov) to get HTML/gcov/lcov coverage of the files Codex (or Claude) opened, then set a follow-up goal to reach full audited coverage of the in-scope code. [asymmetric-research/agent-coverage](https://github.com/asymmetric-research/agent-coverage) does the same (note it uses `codex exec` to refresh).
 
 ## Usage
 
@@ -392,6 +395,7 @@ For security research, harden the goal against reward hacking:
 Two CLI flags are useful for one-off runs that should not touch the global config:
 
 - `codex --config model_reasoning_effort="high"` (or `"medium"` / `"low"`) reduces reasoning for one session when the default `xhigh` is overkill -- simple tasks, throwaway scripts, quick lookups. Editing `config.toml` is not required.
+- `codex -c "service_tier=flex"` (codex >= 0.131) runs at the flex service tier -- roughly half-cost inference that is meant to retry on its own when it hits a 429. Good for long autonomous or batch runs where latency does not matter; not worth it for interactive work. `service_tier=fast` forces fast mode instead. Quota behavior under ChatGPT-plan auth is unconfirmed -- check `/status` if you care about the meter.
 - `codex --ignore-user-config` and `codex --ignore-rules` shrink the hidden harness context (system prompt, exec policy, AGENTS.md). Useful for benchmarking, scratch work, and reducing token spend on simple tasks.
 
 Codex carries a heavier hidden harness context per turn than Claude Code -- system prompt, tool schemas, exec policy, environment/project context, and accumulated transcript replay all flow into every request. Internal benchmarking found this drives most of Codex's cost premium over leaner agents. The two `--ignore-*` flags above are the practical mitigation for benchmarks and short scratch sessions where the harness isn't earning its keep.
@@ -406,7 +410,7 @@ These are field-tested fixes for specific machines and runs. Keep them out of th
 
 #### Long runs and weak networks
 
-If the local network is slow or restrictive, run Codex on a disposable VPS, a [dropkit](https://github.com/trailofbits/dropkit) droplet, or a devcontainer instead of fighting the laptop network. Keep the repo, credentials, and teardown story simple.
+If the local network is slow or restrictive, run Codex on a disposable VPS, a [dropkit](https://github.com/trailofbits/dropkit) droplet, or a devcontainer instead of fighting the laptop network. Keep the repo, credentials, and teardown story simple. To drive that remote host from your laptop's Codex instead of SSHing in, see [remote connections](https://developers.openai.com/codex/remote-connections).
 
 On macOS, keep the machine awake while a long session runs:
 
@@ -429,7 +433,17 @@ codex logout
 codex
 ```
 
-For side-by-side identities, use a separate `CODEX_HOME` instead of rewriting one config:
+For side-by-side identities (for example, a ChatGPT-plan login and an API-key login), use a **profile**. A profile is a separate file at `~/.codex/<name>.config.toml` that overrides the model, provider, and auth while reusing your global `AGENTS.md`, skills, rules, and hooks. Copy the template, drop your key next to it, and select it with `--profile`:
+
+```bash
+cp profile-template.toml ~/.codex/api.config.toml
+echo "sk-..." > ~/.codex/api-key.txt   # never commit API keys
+codex --profile api
+```
+
+The profile name is the file stem (`api` above). The template defines a custom provider whose `auth.command` prints a bearer token to stdout; see [profile-template.toml](profile-template.toml) for the worked example. Run `/status` after launching to confirm the API-key provider is active and that your global `AGENTS.md` and skills still loaded.
+
+For full isolation -- a wholly separate config home with its own `AGENTS.md`, skills, and history rather than a shared one -- point `CODEX_HOME` at a second directory instead:
 
 ```bash
 mkdir -p "$HOME/.codex-api"
@@ -468,6 +482,8 @@ If hardware-backed SSH auth or local Git state gets in the way, add a local mark
 codex plugin marketplace add ./path/to/marketplace
 ```
 
+Codex can keep serving a cached copy of a plugin after you update it. If your edits to a skill or marketplace are not taking effect, toggle the plugin off and back on in `/plugins` to force a reload. For a scripted refresh, send the `plugin/list` RPC to a running Codex app server -- see this [refresh script](https://github.com/trailofbits/galvanize-test-suite/blob/main/refresh-codex-plugin-cache.py).
+
 #### Slash commands and steering
 
 - `/status` -- inspect thread, context, and rate-limit status.
@@ -484,7 +500,11 @@ If summaries do not appear for the model you are using, uncomment `model_support
 
 #### Model pressure and parallelism
 
-If a preview or project-scoped model is saturated, fall back to plain `gpt-5.5` rather than waiting on one blocked session. For throughput, prefer multiple isolated worktrees and Codex sessions over trying to make one session faster.
+If a preview or project-scoped model is saturated, fall back to plain `gpt-5.5` rather than waiting on one blocked session. For throughput, prefer multiple isolated worktrees and Codex sessions over trying to make one session faster. When those parallel sessions are long-running and unattended, `service_tier=flex` (see [Per-invocation overrides](#per-invocation-overrides)) cuts their cost.
+
+#### Reasoning effort: audit vs. build
+
+Match verification depth to the task. Auditing rewards a model that checks its own assumptions, so favor higher reasoning effort (`xhigh`) even though it is slower -- you want it to confirm reachability and re-derive invariants rather than assert them. Build and refactor work tolerates the opposite: lower effort and faster, coding-tuned settings make more assumptions to ship a change, which is usually fine when tests gate the result but is risky for findings you intend to report. Set this per run with `model_reasoning_effort` (see [Per-invocation overrides](#per-invocation-overrides)) instead of editing the default.
 
 ### Untrusted-repo posture
 
@@ -492,4 +512,4 @@ Any repo can plant instructions in agent-readable files (`AGENTS.md`, `CONTRIBUT
 
 ### Containerized runs
 
-For headless or Dockerized Codex runs, copy `~/.codex/auth.json` into the container so the CLI has credentials. The `[features]` table in `config.toml` still applies. Use `codex exec` for non-interactive jobs; slash commands require an interactive `codex` TUI with a TTY.
+For headless or Dockerized Codex runs, copy `~/.codex/auth.json` into the container so the CLI has credentials. The `[features]` table in `config.toml` still applies. Use `codex exec` for non-interactive jobs; slash commands require an interactive `codex` TUI with a TTY. To embed Codex in a service or pipeline rather than shelling out to `codex exec`, use the [Codex SDK](https://developers.openai.com/codex/sdk).

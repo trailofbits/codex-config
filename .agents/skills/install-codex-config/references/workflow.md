@@ -34,6 +34,12 @@ recommended, but still let the user choose.
   - Source: `<source-root>/mcp-template.toml`
   - Target: merge into `~/.codex/config.toml`
 
+- **Profile template** (optional) - auth-identity profile for `--profile`. Not
+  installed by default; offer only if the user wants a second identity (for
+  example, an API-key login alongside a ChatGPT-plan login).
+  - Source: `<source-root>/profile-template.toml`
+  - Target: copy to `~/.codex/<name>.config.toml` (user-named, default `api`)
+
 - **Hooks** - command policy, package manager enforcement, and GAM mutation
   logging.
   - Source: `<source-root>/hooks/*.sh`
@@ -63,7 +69,8 @@ Read or check these target paths:
 - `~/.agents/skills/install-codex-config/SKILL.md`
 
 Also inspect `~/.codex/config.toml` for existing `[mcp_servers.context7]` and
-`[mcp_servers.exa]` tables.
+`[mcp_servers.exa]` tables. If the user asks about the optional profile template,
+check for existing `~/.codex/*.config.toml` profile files before writing one.
 
 ## User Confirmation
 
@@ -106,6 +113,17 @@ Merge only missing `[mcp_servers.context7]` and `[mcp_servers.exa]` tables from
 `mcp-template.toml` into `~/.codex/config.toml`. Do not duplicate existing MCP
 server entries. Remind the user that Exa needs `EXA_API_KEY` available in the
 environment or credential management layer.
+
+### Profile template
+
+Only when the user opts in. Ask for a profile name (default `api`) and copy
+`profile-template.toml` to `~/.codex/<name>.config.toml`; do not overwrite an
+existing profile of that name without confirmation. Remind the user to create
+the key file the profile reads (the template uses `~/.codex/api-key.txt`) and
+never to commit API keys. If they chose a non-default name, update the
+`api-key.txt` path in the copied profile's `auth.command` to match. The profile
+is selected at runtime with `codex --profile <name>`; it is not merged into
+`config.toml`.
 
 ### Hooks
 
