@@ -504,7 +504,7 @@ If a preview or project-scoped model is saturated, fall back to plain `gpt-5.5` 
 
 #### Reasoning effort: audit vs. build
 
-Match verification depth to the task. Auditing rewards a model that checks its own assumptions, so favor higher reasoning effort (`xhigh`) even though it is slower -- you want it to confirm reachability and re-derive invariants rather than assert them. Build and refactor work tolerates the opposite: lower effort and faster, coding-tuned settings make more assumptions to ship a change, which is usually fine when tests gate the result but is risky for findings you intend to report. Set this per run with `model_reasoning_effort` (see [Per-invocation overrides](#per-invocation-overrides)) instead of editing the default.
+Match verification depth to the task. The deciding factor is what catches a wrong assumption. In an audit there is no safety net -- an assumption the model does not check can ship straight into a finding as a false positive -- so favor higher reasoning effort (`xhigh`), even though it is slower, to make the model confirm reachability and re-derive invariants instead of asserting them. In build or refactor work your tests are the safety net: a wrong assumption usually surfaces as a failing test, so lower, faster effort is a fair trade for speed. Set this per run with `model_reasoning_effort` (see [Per-invocation overrides](#per-invocation-overrides)) instead of editing the default.
 
 ### Untrusted-repo posture
 
