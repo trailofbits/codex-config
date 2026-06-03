@@ -386,7 +386,7 @@ For security research, harden the goal against reward hacking:
 - Require Codex to check open issues, open PRs, and known-findings files before treating a bug as new.
 - Keep a short progress log or findings file in the repo so compaction and resumed sessions have durable state.
 - Stop after each meaningful finding for human review instead of letting one goal produce a pile of untriaged reports.
-- Measure what the agent actually read. After an audit pass, run [trailofbits/aicov](https://github.com/trailofbits/aicov) to get HTML/gcov/lcov coverage of the files Codex (or Claude) opened, then set a follow-up goal to reach full audited coverage of the in-scope code. [asymmetric-research/agent-coverage](https://github.com/asymmetric-research/agent-coverage) does the same (note it uses `codex exec` to refresh).
+- Measure what the agent actually read. After an audit pass, run [trailofbits/aicov](https://github.com/trailofbits/aicov) to get HTML/gcov/lcov coverage of the files Codex (or Claude) opened, then set a follow-up goal to reach full audited coverage of the in-scope code.
 
 ## Usage
 
