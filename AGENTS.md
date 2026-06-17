@@ -214,6 +214,7 @@ Keep the TOC to one line per top-level section. Include `references/workflow.md`
 - Never amend/rebase commits already pushed to shared branches
 - Never push directly to main — use feature branches and PRs
 - Never commit secrets, API keys, or credentials — use `.env` files (gitignored) and environment variables
+- Don't add AI co-authorship trailers by default; many projects reject them over copyright-assignment ambiguity. If a project asks for AI disclosure, use a trailer such as `Assisted-by: Codex:<model>` and confirm the output was manually reviewed before submitting.
 
 **Hooks and worktrees:**
 - Install prek in every repo (`prek install`). Run `prek run` before committing. Configure auto-updates: `prek auto-update --cooldown-days 7`
