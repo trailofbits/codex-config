@@ -388,6 +388,16 @@ For security research, harden the goal against reward hacking:
 - Stop after each meaningful finding for human review instead of letting one goal produce a pile of untriaged reports.
 - Measure what the agent actually read. After an audit pass, run [trailofbits/aicov](https://github.com/trailofbits/aicov) to get HTML/gcov/lcov coverage of the files Codex (or Claude) opened, then set a follow-up goal to reach full audited coverage of the in-scope code.
 
+#### High-signal techniques
+
+Field notes on what surfaces real bugs fastest. These are goal patterns, not guarantees -- pick the ones that fit the target.
+
+- **Differential testing across implementations.** When several projects implement the same spec or algorithm (TLS stacks, crypto primitives, JOSE/JWT, protocol parsers), point them at each other and look for disagreements. Cross-implementation divergence is high-signal and tends to produce few false positives, because a real spec violation shows up as one implementation behaving differently from the rest.
+- **Break invariants instead of scanning for "vulns."** Ask Codex to state a function or module's core invariants, then set a goal to find inputs that break them. Treat RFC keywords (MUST, SHALL, SHOULD) as invariants to prove or violate. For stateful systems, have Codex generate many configurations and exercise them until an invariant no longer holds. Pairs well with the `contrarian` skill.
+- **Variant analysis from past bugs.** Scrape the project's historical high-severity issues and advisories, then goal Codex to find other instances of the same root cause in the tree. Generated Semgrep or CodeQL rules scale this: require each rule to fire on the known-vulnerable revision and stay silent on the fixed one, so it finds variants rather than re-reporting the original.
+- **Fuzzing without prior fuzzing experience.** Ask Codex which parts of the codebase are the best fuzz targets, then run several agents on separate worktrees, each with a concrete security goal ("find an input that crashes the parser"). Payoff concentrates where untrusted bytes meet a hand-written parser: protocol and header parsing, length and size fields, credential and token decoding, and compression layers.
+- **Also worth trying.** Have Codex build an attack taxonomy for the system class first -- from the relevant RFCs, prior literature, and classic attacks -- and review each feature against it. For code that is hard to read, ask Codex to re-express it in another language to expose edge cases hidden by unfamiliar constructs. Pair `/goal` with a formal-verification tool such as Verus when correctness is provable.
+
 ## Usage
 
 ### Per-invocation overrides
