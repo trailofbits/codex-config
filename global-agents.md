@@ -48,6 +48,10 @@ Before treating a finding as new, search the repo's open issues, open PRs, and l
 
 When a valid bug is found, append a short entry to `KNOWN_BUG.md` or the project's existing findings file: title plus one-sentence root cause. Treat that entry as triaged for future runs.
 
+Do not assume attacker-controlled preconditions. If a finding depends on the attacker already having access, code execution, or control of an input, show that the precondition holds in scope — if you cannot, it is not a finding.
+
+On find-or-fuzz goals, report the bug — do not patch the crash or vulnerability you were sent to find unless the task explicitly asks for a fix.
+
 ## Philosophy
 
 - **No speculative features** - Don't add features, flags, or configuration unless users actively need them
@@ -256,6 +260,7 @@ Keep the TOC to one line per top-level section. Include `references/workflow.md`
 - Never amend/rebase commits already pushed to shared branches
 - Never push directly to main — use feature branches and PRs
 - Never commit secrets, API keys, or credentials — use `.env` files (gitignored) and environment variables
+- Don't add AI co-authorship trailers by default; many projects reject them over copyright-assignment ambiguity. If a project asks for AI disclosure, use a trailer such as `Assisted-by: Codex:<model>` and confirm the output was manually reviewed before submitting.
 
 **Hooks and worktrees:**
 - Install prek in every repo (`prek install`). Run `prek run` before committing. Configure auto-updates: `prek auto-update --cooldown-days 7`

@@ -169,6 +169,7 @@ The template sets:
 
 - **`model = "gpt-5.5"`** with `model_reasoning_effort = "xhigh"` -- maximum reasoning is the default; we're optimizing for correctness, not token cost. Lower it per-session with `--config model_reasoning_effort="high"` if you specifically want to save tokens on a simple task.
 - **`approval_policy = "on-request"`** -- Codex asks before stepping outside the sandbox; see [Sandboxing](#sandboxing) for the other values
+- **`approvals_reviewer = "auto_review"`** -- routes eligible approval prompts through Codex's automatic reviewer
 - **`default_permissions = "tob-workspace"`** -- selects the custom Trail of Bits sandbox profile: broad local reads, workspace/temp writes, no command network, deny-read rules for credentials and crypto wallets
 - **`web_search = "cached"`** -- Codex's built-in web search caches responses to reduce token spend on repeated queries
 - **`project_doc_fallback_filenames = ["CLAUDE.md"]`** -- migration aid for repos that haven't renamed `CLAUDE.md` to `AGENTS.md`; lets Codex still read the file
@@ -211,6 +212,7 @@ The Trail of Bits default is:
 ```toml
 default_permissions = "tob-workspace"
 approval_policy = "on-request"
+approvals_reviewer = "auto_review"
 ```
 
 That profile gives Codex broad local reads, workspace/temp writes, no command network, and deny-read rules for common credential stores, wallets, `.env`, `*.pem`, and `*.key`. The practical effect: Codex can inspect ordinary local files and edit the repo without prompting, while secrets, network use, and writes outside the workspace require approval or a different profile.
@@ -227,6 +229,14 @@ Install:
 mkdir -p ~/.codex/rules
 cp rules/default.rules ~/.codex/rules/default.rules
 ```
+
+#### `--yolo` mode
+
+**WARNING: Only enable YOLO mode in a sandbox such as a virtual machine or disposable cloud machine. Understand the risks of Codex running arbitrary commands.**
+
+`--yolo` lets Codex run any command without approval or sandboxing. It is a hidden alias for `--dangerously-bypass-approvals-and-sandbox` (approval policy `never`, no sandbox), so `codex --help` shows the long form rather than `--yolo`.
+
+YOLO mode drops sandboxing and approvals, but it still evaluates installed rules and hooks. With this configuration installed, command requests are checked against `rules/default.rules` first, so a `forbidden` rule still rejects the command and `PreToolUse`/`PostToolUse` hooks still run. One sharp edge: `never` approvals leave a `prompt` rule with nothing to approve it, so it becomes a hard rejection -- `sudo`, for instance, is blocked outright rather than prompted. For unrestricted execution, do not install this repository's rules or hooks.
 
 #### Standalone testing
 
@@ -381,14 +391,28 @@ Evidence:    output, diff, report, screenshot, or other proof to show at the end
 
 ### Security research goals
 
-For security research, harden the goal against reward hacking:
+For security research, harden the goal against reward hacking. A flood of wrong or impact-inflated findings is not harmless -- to a maintainer it reads as a denial-of-service on their time, so treat false-positive reduction as part of the work, not cleanup.
 
 - Ask Codex to convert a casual objective into a precise `/goal` prompt before starting the run.
 - Use neutral wording such as "trigger and validate the issue" instead of "prove this is exploitable."
 - Require Codex to check open issues, open PRs, and known-findings files before treating a bug as new.
 - Keep a short progress log or findings file in the repo so compaction and resumed sessions have durable state.
 - Stop after each meaningful finding for human review instead of letting one goal produce a pile of untriaged reports.
+- Don't accept assumed access. Codex's most common false positive assumes the attacker already controls something -- a malicious upstream, an internal caller, or pre-existing code execution. Require the goal to demonstrate that precondition rather than assert it; if the access can't be shown in scope, the finding isn't one.
+- Scope a threat model and reference it in the goal. State what is in and out of scope and what the attacker can and cannot do. This alone removes most invalid "assume the attacker has X" findings.
+- Supply concrete threat scenarios and a baseline severity. Realistic scenarios and a starting severity curb inflation; define what high-severity means for this project before asking Codex to find high-severity bugs.
+- Validate each candidate with a second pass, never the finder alone. Have a different model or a fresh agent re-check the finding against a short plan-note before treating it as real. The config's `approvals_reviewer = "auto_review"` setting is for command approvals; finding validation should be a separate review pass.
 - Measure what the agent actually read. After an audit pass, run [trailofbits/aicov](https://github.com/trailofbits/aicov) to get HTML/gcov/lcov coverage of the files Codex (or Claude) opened, then set a follow-up goal to reach full audited coverage of the in-scope code.
+
+#### High-signal techniques
+
+Field notes on what surfaces real bugs fastest. These are goal patterns, not guarantees -- pick the ones that fit the target.
+
+- **Differential testing across implementations.** When several projects implement the same spec or algorithm (TLS stacks, crypto primitives, JOSE/JWT, protocol parsers), point them at each other and look for disagreements. Cross-implementation divergence is high-signal and tends to produce few false positives, because a real spec violation shows up as one implementation behaving differently from the rest.
+- **Break invariants instead of scanning for "vulns."** Ask Codex to state a function or module's core invariants, then set a goal to find inputs that break them. Treat RFC keywords (MUST, SHALL, SHOULD) as invariants to prove or violate. For stateful systems, have Codex generate many configurations and exercise them until an invariant no longer holds. Pairs well with the `contrarian` skill.
+- **Variant analysis from past bugs.** Scrape the project's historical high-severity issues and advisories, then goal Codex to find other instances of the same root cause in the tree. Generated Semgrep or CodeQL rules scale this: require each rule to fire on the known-vulnerable revision and stay silent on the fixed one, so it finds variants rather than re-reporting the original.
+- **Fuzzing without prior fuzzing experience.** Ask Codex which parts of the codebase are the best fuzz targets, then run several agents on separate worktrees, each with a concrete security goal ("find an input that crashes the parser"). Payoff concentrates where untrusted bytes meet a hand-written parser: protocol and header parsing, length and size fields, credential and token decoding, and compression layers.
+- **Also worth trying.** Have Codex build an attack taxonomy for the system class first -- from the relevant RFCs, prior literature, and classic attacks -- and review each feature against it. For code that is hard to read, ask Codex to re-express it in another language to expose edge cases hidden by unfamiliar constructs. Pair `/goal` with a formal-verification tool such as Verus when correctness is provable.
 
 ## Usage
 
