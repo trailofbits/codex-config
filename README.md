@@ -169,6 +169,7 @@ The template sets:
 
 - **`model = "gpt-5.5"`** with `model_reasoning_effort = "xhigh"` -- maximum reasoning is the default; we're optimizing for correctness, not token cost. Lower it per-session with `--config model_reasoning_effort="high"` if you specifically want to save tokens on a simple task.
 - **`approval_policy = "on-request"`** -- Codex asks before stepping outside the sandbox; see [Sandboxing](#sandboxing) for the other values
+- **`approvals_reviewer = "auto_review"`** -- routes eligible approval prompts through Codex's automatic reviewer
 - **`default_permissions = "tob-workspace"`** -- selects the custom Trail of Bits sandbox profile: broad local reads, workspace/temp writes, no command network, deny-read rules for credentials and crypto wallets
 - **`web_search = "cached"`** -- Codex's built-in web search caches responses to reduce token spend on repeated queries
 - **`project_doc_fallback_filenames = ["CLAUDE.md"]`** -- migration aid for repos that haven't renamed `CLAUDE.md` to `AGENTS.md`; lets Codex still read the file
@@ -209,6 +210,7 @@ The Trail of Bits default is:
 ```toml
 default_permissions = "tob-workspace"
 approval_policy = "on-request"
+approvals_reviewer = "auto_review"
 ```
 
 That profile gives Codex broad local reads, workspace/temp writes, no command network, and deny-read rules for common credential stores, wallets, `.env`, `*.pem`, and `*.key`. The practical effect: Codex can inspect ordinary local files and edit the repo without prompting, while secrets, network use, and writes outside the workspace require approval or a different profile.

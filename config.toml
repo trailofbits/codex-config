@@ -15,7 +15,7 @@ model_reasoning_summary = "auto"
 personality = "pragmatic"
 
 approval_policy = "on-request"
-approvals_reviewer = "guardian_subagent"
+approvals_reviewer = "auto_review"
 # Trail of Bits workspace profile: broad local reads, workspace/temp writes,
 # no command network, and deny-read rules for common secret locations. Do not
 # also set `sandbox_mode`; if present, Codex uses that instead.
