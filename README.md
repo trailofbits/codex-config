@@ -379,13 +379,17 @@ Evidence:    output, diff, report, screenshot, or other proof to show at the end
 
 ### Security research goals
 
-For security research, harden the goal against reward hacking:
+For security research, harden the goal against reward hacking. A flood of wrong or impact-inflated findings is not harmless -- to a maintainer it reads as a denial-of-service on their time, so treat false-positive reduction as part of the work, not cleanup.
 
 - Ask Codex to convert a casual objective into a precise `/goal` prompt before starting the run.
 - Use neutral wording such as "trigger and validate the issue" instead of "prove this is exploitable."
 - Require Codex to check open issues, open PRs, and known-findings files before treating a bug as new.
 - Keep a short progress log or findings file in the repo so compaction and resumed sessions have durable state.
 - Stop after each meaningful finding for human review instead of letting one goal produce a pile of untriaged reports.
+- Don't accept assumed access. Codex's most common false positive assumes the attacker already controls something -- a malicious upstream, an internal caller, or pre-existing code execution. Require the goal to demonstrate that precondition rather than assert it; if the access can't be shown in scope, the finding isn't one.
+- Scope a threat model and reference it in the goal. State what is in and out of scope and what the attacker can and cannot do. This alone removes most invalid "assume the attacker has X" findings.
+- Supply concrete threat scenarios and a baseline severity. Realistic scenarios and a starting severity curb inflation; define what high-severity means for this project before asking Codex to find high-severity bugs.
+- Validate each candidate with a second pass, never the finder alone. Have a different model or a fresh agent re-check the finding against a short plan-note before treating it as real. The config ships `approvals_reviewer = "guardian_subagent"` for this; a two-model check (for example `gpt-5.5` then `gpt-5.4`) also works.
 - Measure what the agent actually read. After an audit pass, run [trailofbits/aicov](https://github.com/trailofbits/aicov) to get HTML/gcov/lcov coverage of the files Codex (or Claude) opened, then set a follow-up goal to reach full audited coverage of the in-scope code.
 
 #### High-signal techniques
