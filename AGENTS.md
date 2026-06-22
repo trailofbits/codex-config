@@ -20,10 +20,10 @@ global Codex guidance template installed for users.
 The installable global guidance lives in `global-agents.md`. The installer copies
 that file to `~/.codex/AGENTS.md`.
 
-This repository is the Codex counterpart to `trailofbits/claude-code-config`.
-Keep the same operator-config shape where it maps cleanly: opinionated defaults,
-clear setup docs, sandbox and permission posture, hooks, rules, skills, MCP
-servers, and usage playbooks for security audits, development, and research.
+Keep this repository shaped as an operator config distribution: opinionated
+defaults, clear setup docs, sandbox and permission posture, hooks, rules,
+skills, MCP servers, and usage playbooks for security audits, development, and
+research.
 
 ## Style direction
 
@@ -34,9 +34,9 @@ current, and easier to reason about.
 - Prefer concrete shipped artifacts over prose-only preferences. If a README
   recommendation belongs in default behavior, encode it in `config.toml`,
   `global-agents.md`, a hook, a rule, or a skill.
-- Port principles from `claude-code-config`, not syntax. Claude settings,
-  commands, hooks, marketplace behavior, and local-model advice only become
-  Codex changes after verifying the current Codex equivalent.
+- Adapt patterns from other agent configuration projects only after verifying
+  the current Codex equivalent. Do not copy another tool's settings, commands,
+  hooks, marketplace behavior, or model advice into this repo as-is.
 - Keep the docs runbook-shaped: what to install, what the default does, why the
   tradeoff exists, and how to verify it. Avoid long history or discarded
   approaches.
@@ -59,11 +59,10 @@ If official docs and local CLI behavior disagree, state the mismatch in the PR
 or final summary and keep the repository aligned with current local behavior
 only when that is what users will actually run.
 
-When Claude and Codex differ, prefer Codex ground truth over parity. Examples:
-Claude's global `CLAUDE.md` maps to installable `global-agents.md`, Claude
-settings JSON maps to Codex TOML, Claude slash-command installers map to Codex
-skills, and Claude permission rules map to Codex permission profiles plus exec
-policy rules and hooks.
+When another agent tool and Codex differ, prefer Codex ground truth over parity.
+Keep Codex concepts native: global instructions live in `global-agents.md`,
+settings live in TOML, install workflows live in skills, and command controls
+live in permission profiles, exec policy rules, and hooks.
 
 ## Surface boundaries
 
@@ -82,8 +81,7 @@ policy rules and hooks.
 - `rules/default.rules` classifies unsandboxed command requests. It complements
   sandboxing and hooks; it does not replace either.
 - `.agents/skills/install-codex-config/` is the local-only installer workflow.
-  Unlike the Claude config command, it must install from checked-in repo files,
-  not fetch raw files from GitHub.
+  It must install from checked-in repo files, not fetch raw files from GitHub.
 - `.agents/skills/*` are reusable workflows shipped with the config. Keep each
   skill's `SKILL.md`, `references/`, and `agents/openai.yaml` aligned.
 
@@ -162,7 +160,7 @@ Document expected environment-only warnings, such as missing auth in a throwaway
 test home.
 
 When editing only Markdown, run at least `git diff --check` and scan for stale
-references to old install paths, Claude-only terms, outdated model names, or
+references to old install paths, other-tool-specific terms, outdated model names, or
 Codex settings not present in the shipped templates.
 
 ## Pull requests
