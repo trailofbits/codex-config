@@ -3,8 +3,9 @@ name: install-codex-config
 description: >-
   Install or update this organization's Codex configuration from repo-local
   files into the user's Codex home. Use when asked to set up, install, update,
-  bootstrap, or sync this Codex configuration, including AGENTS.md, config.toml,
-  hooks, rules, MCP servers, profile templates, and bundled skills.
+  bootstrap, or sync this Codex configuration, including the global AGENTS
+  template, config.toml, hooks, rules, MCP servers, profile templates, and
+  bundled skills.
 ---
 
 # Install Codex Config
@@ -22,10 +23,11 @@ current machine.
 2. Use only files from the local repository. Do not fetch configuration from
    GitHub or any other network source.
 3. Discover the source root:
-   - If the repo contains `codex-config/config.toml`, use `codex-config/`.
-   - Otherwise, if the repo root contains `config.toml` and `AGENTS.md`, use the
-     repo root. This is the expected layout after extracting `codex-config/` into
-     its own repository.
+   - If the repo contains `codex-config/config.toml` and
+     `codex-config/global-agents.md`, use `codex-config/`.
+   - Otherwise, if the repo root contains `config.toml` and
+     `global-agents.md`, use the repo root. This is the expected layout after
+     extracting `codex-config/` into its own repository.
 4. Inventory the target Codex files and ask the user which components to
    install or update before writing outside the repository.
 5. Preview merges for existing `~/.codex/config.toml` and `~/.codex/AGENTS.md`;

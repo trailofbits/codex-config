@@ -10,8 +10,9 @@ from GitHub or any remote URL.
 1. Determine the git root with `git rev-parse --show-toplevel` when available.
 2. Choose the source root:
    - Prefer `<git-root>/codex-config` when it contains `config.toml` and
-     `AGENTS.md`.
-   - Otherwise use `<git-root>` when it contains `config.toml` and `AGENTS.md`.
+     `global-agents.md`.
+   - Otherwise use `<git-root>` when it contains `config.toml` and
+     `global-agents.md`.
    - If neither layout is found, inspect the current directory and its parents
      for the same two-file marker.
 3. Confirm source files exist before offering them as installable components.
@@ -22,7 +23,7 @@ Offer these components to the user. Mark missing target components as
 recommended, but still let the user choose.
 
 - **AGENTS.md** - global Codex development standards.
-  - Source: `<source-root>/AGENTS.md`
+  - Source: `<source-root>/global-agents.md`
   - Target: `~/.codex/AGENTS.md`
 
 - **config.toml** - model defaults, permissions, hooks, UI, analytics, history,
@@ -89,9 +90,9 @@ list such as `agents, config, mcp, hooks, rules, skills, all`.
 
 ### AGENTS.md
 
-If `~/.codex/AGENTS.md` is missing, install the source file. If it exists, show
-the user a diff or concise summary and ask whether to overwrite, skip, or merge
-manually. Do not silently overwrite it.
+If `~/.codex/AGENTS.md` is missing, install `global-agents.md` from the source
+root. If it exists, show the user a diff or concise summary and ask whether to
+overwrite, skip, or merge manually. Do not silently overwrite it.
 
 ### config.toml
 
