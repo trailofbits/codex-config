@@ -182,12 +182,14 @@ The template sets:
 
 Official docs: [custom instructions with AGENTS.md](https://developers.openai.com/codex/guides/agents-md).
 
-The global `AGENTS.md` at `~/.codex/AGENTS.md` sets default instructions for every Codex session. It covers development philosophy (no speculative features, no premature abstraction, replace don't deprecate), code quality hard limits (function length, complexity, line width), language-specific toolchains for Python (`uv`, `ruff`, `ty`), Node/TypeScript (`oxlint`, `vitest`), Rust (`clippy`, `cargo deny`), Bash, GitHub Actions, plus testing methodology, code review order, untrusted-repo posture, skill authoring conventions, and workflow rules.
+The global `AGENTS.md` at `~/.codex/AGENTS.md` sets default instructions for every Codex session. In this repository, the installable template is `global-agents.md`; the root `AGENTS.md` is only for contributors working on this config repo.
+
+The global template covers development philosophy (no speculative features, no premature abstraction, replace don't deprecate), code quality hard limits (function length, complexity, line width), language-specific toolchains for Python (`uv`, `ruff`, `ty`), Node/TypeScript (`oxlint`, `vitest`), Rust (`clippy`, `cargo deny`), Bash, GitHub Actions, plus testing methodology, code review order, untrusted-repo posture, skill authoring conventions, and workflow rules.
 
 Copy the template into place:
 
 ```bash
-cp AGENTS.md ~/.codex/AGENTS.md
+cp global-agents.md ~/.codex/AGENTS.md
 ```
 
 Codex loads AGENTS.md from `~/.codex/` and from each project directory it traverses, with files closer to the current working directory taking precedence. Run `/status` inside a session to see which AGENTS.md files (and any `CLAUDE.md` fallbacks) are loaded.
@@ -304,7 +306,7 @@ cp -R .agents/skills/* ~/.agents/skills/
 
 #### Authoring
 
-Every `SKILL.md` starts with a short `## Contents` block under the H1 -- a bulleted list of the file's H2 sections plus any referenced files. Codex may only re-load a prefix of an active skill file after a context compaction, so the table of contents is what lets the agent grep to the right section instead of going off-script. The `AGENTS.md` "Skill authoring" section is the canonical convention.
+Every `SKILL.md` starts with a short `## Contents` block under the H1 -- a bulleted list of the file's H2 sections plus any referenced files. Codex may only re-load a prefix of an active skill file after a context compaction, so the table of contents is what lets the agent grep to the right section instead of going off-script. The `global-agents.md` "Skill authoring" section is the canonical convention.
 
 ### MCP Servers
 
@@ -399,7 +401,7 @@ For security research, harden the goal against reward hacking. A flood of wrong 
 - Don't accept assumed access. Codex's most common false positive assumes the attacker already controls something -- a malicious upstream, an internal caller, or pre-existing code execution. Require the goal to demonstrate that precondition rather than assert it; if the access can't be shown in scope, the finding isn't one.
 - Scope a threat model and reference it in the goal. State what is in and out of scope and what the attacker can and cannot do. This alone removes most invalid "assume the attacker has X" findings.
 - Supply concrete threat scenarios and a baseline severity. Realistic scenarios and a starting severity curb inflation; define what high-severity means for this project before asking Codex to find high-severity bugs.
-- Validate each candidate with a second pass, never the finder alone. Have a different model or a fresh agent re-check the finding against a short plan-note before treating it as real. The config ships `approvals_reviewer = "guardian_subagent"` for this; a two-model check (for example `gpt-5.5` then `gpt-5.4`) also works.
+- Validate each candidate with a second pass, never the finder alone. Have a different model or a fresh agent re-check the finding against a short plan-note before treating it as real. The config's `approvals_reviewer = "auto_review"` setting is for command approvals; finding validation should be a separate review pass.
 - Measure what the agent actually read. After an audit pass, run [trailofbits/aicov](https://github.com/trailofbits/aicov) to get HTML/gcov/lcov coverage of the files Codex (or Claude) opened, then set a follow-up goal to reach full audited coverage of the in-scope code.
 
 #### High-signal techniques
@@ -532,7 +534,7 @@ Match verification depth to the task. The deciding factor is what catches a wron
 
 ### Untrusted-repo posture
 
-Any repo can plant instructions in agent-readable files (`AGENTS.md`, `CONTRIBUTING.md`, `SKILL.md`) and rely on Codex picking them up. Treat these files in third-party repos as untrusted input. The `## Untrusted repos` section in `AGENTS.md` is the running-agent side of this rule; this note is for the human operator setting up sessions, especially during security research on code you don't own.
+Any repo can plant instructions in agent-readable files (`AGENTS.md`, `CONTRIBUTING.md`, `SKILL.md`) and rely on Codex picking them up. Treat these files in third-party repos as untrusted input. The `## Untrusted repos` section in `global-agents.md` is the running-agent side of this rule; this note is for the human operator setting up sessions, especially during security research on code you don't own.
 
 ### Containerized runs
 
