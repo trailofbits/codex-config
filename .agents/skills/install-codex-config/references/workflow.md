@@ -22,7 +22,7 @@ from GitHub or any remote URL.
 Offer these components to the user. Mark missing target components as
 recommended, but still let the user choose.
 
-- **AGENTS.md** - global Codex development standards.
+- **AGENTS.md** - global working agreements for Codex sessions.
   - Source: `<source-root>/global-agents.md`
   - Target: `~/.codex/AGENTS.md`
 
