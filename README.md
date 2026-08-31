@@ -175,7 +175,7 @@ The template sets:
 - **`project_doc_fallback_filenames = ["CLAUDE.md"]`** -- migration aid for repos that haven't renamed `CLAUDE.md` to `AGENTS.md`; lets Codex still read the file
 - **`cli_auth_credentials_store = "keyring"`** + **`mcp_oauth_credentials_store = "keyring"`** -- macOS Keychain (Linux: secret-service)
 - **`[features] goals = true`** -- enables the [/goal loop](#goal)
-- **`[tui]`** -- two-line status bar showing model, reasoning, context remaining, git branch, current dir
+- **`[tui]`** -- colored footer showing model, reasoning, context remaining, current directory, Git branch, and fast mode
 - **Hooks** wired to the three shipped scripts -- see [Hooks](#hooks)
 
 ### Global AGENTS.md

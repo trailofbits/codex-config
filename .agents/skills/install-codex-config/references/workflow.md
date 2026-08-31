@@ -26,8 +26,8 @@ recommended, but still let the user choose.
   - Source: `<source-root>/global-agents.md`
   - Target: `~/.codex/AGENTS.md`
 
-- **config.toml** - model defaults, permissions, hooks, UI, analytics, history,
-  and feature flags.
+- **config.toml** - model defaults, permissions, hooks, TUI status line,
+  analytics, history, and feature flags.
   - Source: `<source-root>/config.toml`
   - Target: `~/.codex/config.toml`
 
