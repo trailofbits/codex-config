@@ -83,7 +83,8 @@ notifications = true
 notification_condition = "unfocused"
 animations = true
 show_tooltips = true
-status_line = ["model-with-reasoning", "context-remaining", "git-branch", "current-dir"]
+status_line = ["model-with-reasoning", "context-remaining", "current-dir", "git-branch", "fast-mode"]
+status_line_use_colors = true
 terminal_title = ["spinner", "project", "git-branch"]
 
 [analytics]
