@@ -3,8 +3,7 @@
 # Copy or merge this into ~/.codex/config.toml. Keep root keys before tables;
 # TOML requires table sections to come after top-level settings.
 
-model = "gpt-5.5"
-review_model = "gpt-5.5"
+model = "gpt-5.6-sol"
 model_reasoning_effort = "xhigh"
 plan_mode_reasoning_effort = "xhigh"
 # Optional for steering long runs: uncomment for more detailed reasoning

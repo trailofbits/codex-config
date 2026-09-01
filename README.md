@@ -51,6 +51,10 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 Before configuring anything, read these to understand why this setup works the way it does:
 
 - [Codex CLI docs](https://developers.openai.com/codex) -- the official primer; config schema, sandbox model, exec policy, hooks, skills, and CLI flags
+- [GPT-5.6 model guidance](https://developers.openai.com/api/docs/guides/latest-model):
+  model tiers, migration guidance, reasoning effort, and prompt design
+- [Build skills](https://learn.chatgpt.com/docs/build-skills): skill discovery, implicit
+  invocation, and progressive disclosure
 - [Codex for Knowledge Work](https://every.to/guides/codex-for-knowledge-work) -- Every's guide to using Codex as a workspace for knowledge work, not just code
 - [Codex-maxxing](https://jxnl.github.io/blog/writing/2026/05/10/codex-maxxing/) -- Jason Liu on durable threads, memory, steering, browser/computer use, goals, and review surfaces
 - [AI-assisted coding for teams that can't get away with vibes](https://blog.nilenso.com/blog/2025/05/29/ai-assisted-coding/) -- Nilenso's playbook for teams integrating AI tools with high standards
@@ -148,11 +152,13 @@ npm install -g oxlint agent-browser
 Add to `~/.zshrc`:
 
 ```bash
-alias codex-cyber-preview='codex -m gpt-5.5-cyber-preview --config model_reasoning_effort="xhigh"'
-alias codex-cyber='codex -m gpt-5.4-cyber --config model_reasoning_effort="xhigh"'
+alias codex-cyber='codex -m gpt-5.6-cyber --config model_reasoning_effort="xhigh"'
 ```
 
-The `-cyber` models require `OPENAI_API_KEY` from Trusted Access Cyber, not a ChatGPT subscription. Use them when `gpt-5.5` refuses (exploit shells, offensive code, malware analysis): quit the session, resume with one of these, run a few turns to establish context, then switch back to `codex` -- once context is in place, `gpt-5.5` typically continues without refusing.
+`gpt-5.6-cyber` is for explicitly authorized security research. It requires separate Trusted Access
+for Cyber approval and provisioning for the identity, organization or workspace, project, model,
+and product surface in use. Model selection does not expand the systems or actions authorized for a
+task.
 
 ### Settings
 
@@ -167,7 +173,13 @@ cp config.toml ~/.codex/config.toml
 
 The template sets:
 
-- **`model = "gpt-5.5"`** with `model_reasoning_effort = "xhigh"` -- maximum reasoning is the default; we're optimizing for correctness, not token cost. Lower it per-session with `--config model_reasoning_effort="high"` if you specifically want to save tokens on a simple task.
+- **`model = "gpt-5.6-sol"`**: the shipped default uses the explicit flagship GPT-5.6 slug.
+  `review_model` remains unset, so `/review` follows the active session or profile model.
+- **`model_reasoning_effort = "xhigh"`** with
+  **`plan_mode_reasoning_effort = "xhigh"`**: normal and Plan work use extra-high effort.
+  `model_verbosity` remains unset so the model preset controls response length.
+- **`personality = "pragmatic"`** and **`model_reasoning_summary = "auto"`**:
+  use the pragmatic communication preset and automatic reasoning summaries.
 - **`approval_policy = "on-request"`** -- Codex asks before stepping outside the sandbox; see [Sandboxing](#sandboxing) for the other values
 - **`approvals_reviewer = "auto_review"`** -- routes eligible approval prompts through Codex's automatic reviewer
 - **`default_permissions = "tob-workspace"`** -- selects the custom Trail of Bits sandbox profile: broad local reads, workspace/temp writes, no command network, deny-read rules for credentials and crypto wallets
@@ -184,8 +196,10 @@ Official docs: [custom instructions with AGENTS.md](https://developers.openai.co
 
 The global `AGENTS.md` at `~/.codex/AGENTS.md` sets default instructions for every Codex session. In this repository, the installable template is `global-agents.md`; the root `AGENTS.md` is only for contributors working on this config repo.
 
-The global template defines working agreements for advice, task scope, approvals, writing,
-engineering, verification, code review, tool choice, greenfield projects, Git, and pull requests.
+The global template contains only rules that apply across tasks: instruction precedence, current
+sources, untrusted input, scope and approvals, preservation of existing behavior, direct
+communication, and relevant validation. Development, durable writing, and security-research detail
+live in implicitly invoked skills so unrelated sessions do not pay for those instructions.
 
 Copy the template into place:
 
@@ -193,7 +207,11 @@ Copy the template into place:
 cp global-agents.md ~/.codex/AGENTS.md
 ```
 
-Codex loads AGENTS.md from `~/.codex/` and from each project directory it traverses, with files closer to the current working directory taking precedence. Run `/status` inside a session to see which AGENTS.md files (and any `CLAUDE.md` fallbacks) are loaded.
+Codex builds the AGENTS chain once when a run starts. It reads the global file, then walks from the
+project root down to the directory where Codex was launched; files closer to that launch directory
+take precedence. A nested `AGENTS.md` is not a dynamic per-file router for files elsewhere in the
+tree. Launch Codex from the relevant subtree when its nested instructions should apply. Run
+`/status` to inspect the loaded chain and any configured `CLAUDE.md` fallback.
 
 For an example of a project-level AGENTS.md, see [crytic/slither/CLAUDE.md](https://github.com/crytic/slither/blob/master/CLAUDE.md) -- the same content works under either name since `project_doc_fallback_filenames` is set.
 
@@ -283,20 +301,35 @@ The hooks block in `config.toml` wires them up. Each hook has a `timeout` (secon
 
 ### Skills
 
-Official docs: [skills](https://developers.openai.com/codex/skills).
+Official docs: [build skills](https://learn.chatgpt.com/docs/build-skills).
 
-Codex skills live in `~/.agents/skills/` and are loaded into the session as workflows the agent can invoke. They're closer to Claude's plugin model than to slash commands -- a skill bundles a `SKILL.md` (the agent-facing instructions) with `references/` (longer-form content the agent loads on demand) and `agents/openai.yaml` (interface metadata).
+Codex skills use progressive disclosure. The initial prompt contains each skill's name and concise
+description. Codex loads the complete `SKILL.md` only when the request matches or the user invokes
+the skill. Keep guidance used by a typical invocation in that entrypoint. Use `references/` only
+when a meaningful branch lets the invocation skip the file, such as a language, PR type, or
+authorized mutation path. A skill can also bundle `agents/openai.yaml` for interface metadata and
+invocation policy.
 
-The `SKILL.md` format is shared across tools, and Codex also reads Claude Code marketplaces and the common `~/.agents/skills/` location, so Trail of Bits skills written for either agent generally work in both. The exception is hooks, which do not reliably port between Codex and Claude -- keep tool-specific guardrails in each tool's own config.
+Repository skills are discovered from `.agents/skills/` along the launch-directory path to the
+repository root. User skills can be installed under `~/.agents/skills/`. Skill descriptions should
+be narrow enough for reliable implicit selection.
 
-Four skills ship in this repo under `.agents/skills/`:
+Seven skills ship in this repo under `.agents/skills/`:
 
 | Skill | What it does |
 |-------|--------------|
 | `$install-codex-config` | Installs or updates this Codex configuration from the local repo. Self-installs into `~/.agents/skills/` so it works from any directory after the first run. |
+| `$development-standards` | Routes code standards by language and file type. |
+| `$technical-writing` | Guides durable technical prose. |
+| `$security-research-hygiene` | Validates and records authorized findings. |
 | `$fix-github-issue` | Takes a GitHub issue from triage through PR creation -- research, plan, implement, verify, self-review, push, comment back. |
 | `$merge-dependabot-prs` | Evaluates and merges Dependabot PRs with dependency-aware batching, transitive analysis, build/test verification, and sequential merges. |
 | `$review-and-fix-pr` | Reviews a PR, merges findings from `codex review` and other reviewers, fixes P1-P3 findings, and posts a summary comment. |
+
+For additional maintained workflows and domain expertise, use
+[trailofbits/skills](https://github.com/trailofbits/skills). Use
+[trailofbits/skills-curated](https://github.com/trailofbits/skills-curated) for reviewed third-party
+skills instead of duplicating a fast-moving recommendation catalog here.
 
 Keep `.agents/skills/` at the repo root for project-local use, or copy globally:
 
@@ -304,10 +337,6 @@ Keep `.agents/skills/` at the repo root for project-local use, or copy globally:
 mkdir -p ~/.agents/skills
 cp -R .agents/skills/* ~/.agents/skills/
 ```
-
-#### Authoring
-
-Every `SKILL.md` starts with a short `## Contents` block under the H1 -- a bulleted list of the file's H2 sections plus any referenced files. Codex may only re-load a prefix of an active skill file after a context compaction, so the table of contents is what lets the agent grep to the right section instead of going off-script.
 
 ### MCP Servers
 
@@ -419,13 +448,19 @@ Field notes on what surfaces real bugs fastest. These are goal patterns, not gua
 
 ### Per-invocation overrides
 
-Two CLI flags are useful for one-off runs that should not touch the global config:
+These options are useful for one-off runs that should not edit the global config:
 
-- `codex --config model_reasoning_effort="high"` (or `"medium"` / `"low"`) reduces reasoning for one session when the default `xhigh` is overkill -- simple tasks, throwaway scripts, quick lookups. Editing `config.toml` is not required.
-- `codex -c "service_tier=flex"` runs at the flex service tier -- roughly half-cost inference that is meant to retry on its own when it hits a 429. Good for long autonomous or batch runs where latency does not matter; not worth it for interactive work. `service_tier=fast` forces fast mode instead. Quota behavior under ChatGPT-plan auth is unconfirmed -- check `/status` if you care about the meter.
-- `codex --ignore-user-config` and `codex --ignore-rules` shrink the hidden harness context (system prompt, exec policy, AGENTS.md). Useful for benchmarking, scratch work, and reducing token spend on simple tasks.
+- `codex --config model_reasoning_effort="high"` lowers the normal `xhigh` default for a measured
+  low-risk workload. `"medium"` or `"low"` can reduce latency further.
+- `codex -c "service_tier=flex"` requests flex service for a latency-tolerant run when the active
+  model and provider offer it. `service_tier=fast` requests fast mode. Verify effective status.
+- `codex exec --ignore-user-config` skips `$CODEX_HOME/config.toml` for that non-interactive run;
+  authentication still uses `CODEX_HOME`. It does not disable `AGENTS.md` discovery.
+- `codex exec --ignore-rules` skips user and project exec-policy `.rules` files. It does not disable
+  hooks, AGENTS instructions, or the sandbox. Use it only for a controlled rules-exclusion test,
+  never as a routine token-saving flag.
 
-Codex carries a heavier hidden harness context per turn than Claude Code -- system prompt, tool schemas, exec policy, environment/project context, and accumulated transcript replay all flow into every request. Internal benchmarking found this drives most of Codex's cost premium over leaner agents. The two `--ignore-*` flags above are the practical mitigation for benchmarks and short scratch sessions where the harness isn't earning its keep.
+Use an isolated eval home for clean comparisons instead of weakening a normal working configuration.
 
 ### Token tracking
 
@@ -470,11 +505,15 @@ codex --profile api
 
 The profile name is the file stem (`api` above). The template defines a custom provider whose `auth.command` prints a bearer token to stdout; see [profile-template.toml](profile-template.toml) for the worked example. Run `/status` after launching to confirm the API-key provider is active and that your global `AGENTS.md` and skills still loaded.
 
+The profile template includes an optional commented `gpt-5.6-cyber` pin. Uncomment it only for an
+API identity and project that have separate approval and provisioning for authorized security
+research.
+
 For full isolation -- a wholly separate config home with its own `AGENTS.md`, skills, and history rather than a shared one -- point `CODEX_HOME` at a second directory instead:
 
 ```bash
-mkdir -p "$HOME/.codex-api"
-alias codex-api='CODEX_HOME=$HOME/.codex-api codex -m gpt-5.5-cyber-preview'
+mkdir -p "$HOME/.codex-isolated"
+alias codex-isolated='CODEX_HOME=$HOME/.codex-isolated codex'
 ```
 
 On Linux VPS images without a working secret-service backend, switch both credential stores to `"auto"`:
@@ -527,11 +566,15 @@ If summaries do not appear for the model you are using, uncomment `model_support
 
 #### Model pressure and parallelism
 
-If a preview or project-scoped model is saturated, fall back to plain `gpt-5.5` rather than waiting on one blocked session. For throughput, prefer multiple isolated worktrees and Codex sessions over trying to make one session faster. When those parallel sessions are long-running and unattended, `service_tier=flex` (see [Per-invocation overrides](#per-invocation-overrides)) cuts their cost.
+For throughput, use multiple isolated worktrees and Codex sessions when the task divides cleanly and
+the user authorizes parallel work. When long-running unattended sessions can tolerate variable
+latency, evaluate `service_tier=flex` against the default tier for the actual workload.
 
 #### Reasoning effort: audit vs. build
 
-Match verification depth to the task. The deciding factor is what catches a wrong assumption. In an audit there is no safety net -- an assumption the model does not check can ship straight into a finding as a false positive -- so favor higher reasoning effort (`xhigh`), even though it is slower, to make the model confirm reachability and re-derive invariants instead of asserting them. In build or refactor work your tests are the safety net: a wrong assumption usually surfaces as a failing test, so lower, faster effort is a fair trade for speed. Set this per run with `model_reasoning_effort` (see [Per-invocation overrides](#per-invocation-overrides)) instead of editing the default.
+The shipped normal default, Plan mode, and the public cyber alias use `xhigh`. Lower a run to
+`high`, `medium`, or `low` only when representative evaluation shows no quality loss for that
+workload. Choose effort from task risk, available validation, latency, and measured results.
 
 ### Untrusted-repo posture
 

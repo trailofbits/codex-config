@@ -1,4 +1,4 @@
 interface:
   display_name: "Review and Fix PR"
-  short_description: "Review a PR, fix actionable findings, verify checks, and comment."
+  short_description: "Review and resolve actionable PR findings."
   default_prompt: "Use $review-and-fix-pr on PR #"
