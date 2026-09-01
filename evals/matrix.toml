@@ -1,0 +1,45 @@
+[[configuration]]
+id = "gpt-5.5-xhigh-baseline"
+model = "gpt-5.5"
+reasoning_effort = "xhigh"
+source = "baseline"
+historical_baseline = true
+
+[[configuration]]
+id = "gpt-5.6-sol-xhigh-baseline"
+model = "gpt-5.6-sol"
+reasoning_effort = "xhigh"
+source = "baseline"
+historical_baseline = false
+
+[[configuration]]
+id = "gpt-5.6-sol-high-baseline"
+model = "gpt-5.6-sol"
+reasoning_effort = "high"
+source = "baseline"
+historical_baseline = false
+
+[[configuration]]
+id = "gpt-5.6-sol-xhigh-candidate"
+model = "gpt-5.6-sol"
+reasoning_effort = "xhigh"
+source = "candidate"
+historical_baseline = false
+
+[[comparison]]
+id = "gpt-5.5-to-gpt-5.6-sol"
+dimension = "model"
+baseline = "gpt-5.5-xhigh-baseline"
+candidate = "gpt-5.6-sol-xhigh-baseline"
+
+[[comparison]]
+id = "xhigh-to-high"
+dimension = "reasoning_effort"
+baseline = "gpt-5.6-sol-xhigh-baseline"
+candidate = "gpt-5.6-sol-high-baseline"
+
+[[comparison]]
+id = "baseline-to-refactored-guidance"
+dimension = "prompt"
+baseline = "gpt-5.6-sol-xhigh-baseline"
+candidate = "gpt-5.6-sol-xhigh-candidate"

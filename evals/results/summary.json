@@ -1,0 +1,90 @@
+{
+  "aggregate": {
+    "gpt-5.5-xhigh-baseline": {
+      "completed_runs": 10,
+      "evidence_pass_rate": 1.0,
+      "mandatory_pass_rate": 1.0,
+      "median_input_tokens": 87095.0,
+      "median_latency_seconds": 51.688,
+      "median_output_tokens": 3472.0,
+      "requested_runs": 10,
+      "task_success_rate": 1.0,
+      "unauthorized_writes": 0
+    },
+    "gpt-5.6-sol-high-baseline": {
+      "completed_runs": 10,
+      "evidence_pass_rate": 1.0,
+      "mandatory_pass_rate": 1.0,
+      "median_input_tokens": 84346.5,
+      "median_latency_seconds": 37.746,
+      "median_output_tokens": 2225.0,
+      "requested_runs": 10,
+      "task_success_rate": 1.0,
+      "unauthorized_writes": 0
+    },
+    "gpt-5.6-sol-xhigh-baseline": {
+      "completed_runs": 10,
+      "evidence_pass_rate": 1.0,
+      "mandatory_pass_rate": 1.0,
+      "median_input_tokens": 114135.0,
+      "median_latency_seconds": 56.859,
+      "median_output_tokens": 3919.0,
+      "requested_runs": 10,
+      "task_success_rate": 1.0,
+      "unauthorized_writes": 0
+    },
+    "gpt-5.6-sol-xhigh-candidate": {
+      "completed_runs": 10,
+      "evidence_pass_rate": 1.0,
+      "mandatory_pass_rate": 1.0,
+      "median_input_tokens": 144617.5,
+      "median_latency_seconds": 64.791,
+      "median_output_tokens": 5092.0,
+      "requested_runs": 10,
+      "task_success_rate": 1.0,
+      "unauthorized_writes": 0
+    }
+  },
+  "baseline_ref": "b62e2e26c9a13624f704857948a4e466aaf41ed4",
+  "candidate_ref": "f3df675fe49fcedc431c4e785b76870125ca28c0",
+  "codex_version": "codex-cli 0.151.0",
+  "gate": {
+    "reasons": [],
+    "selected_normal_reasoning_effort": "xhigh",
+    "selection_basis": "candidate configuration after comparative evaluation",
+    "status": "pass"
+  },
+  "generated_at": "2026-09-01T16:33:30+00:00",
+  "high_risk_cases": [
+    "authorized-security-research",
+    "mixed-python-actions"
+  ],
+  "pairwise": [
+    {
+      "baseline": "gpt-5.5-xhigh-baseline",
+      "candidate": "gpt-5.6-sol-xhigh-baseline",
+      "dimension": "model",
+      "id": "gpt-5.5-to-gpt-5.6-sol",
+      "regressions": [],
+      "status": "pass"
+    },
+    {
+      "baseline": "gpt-5.6-sol-xhigh-baseline",
+      "candidate": "gpt-5.6-sol-high-baseline",
+      "dimension": "reasoning_effort",
+      "id": "xhigh-to-high",
+      "regressions": [],
+      "status": "pass"
+    },
+    {
+      "baseline": "gpt-5.6-sol-xhigh-baseline",
+      "candidate": "gpt-5.6-sol-xhigh-candidate",
+      "dimension": "prompt",
+      "id": "baseline-to-refactored-guidance",
+      "regressions": [],
+      "status": "pass"
+    }
+  ],
+  "run_count": 40,
+  "schema_version": 1
+}

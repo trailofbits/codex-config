@@ -1,0 +1,4 @@
+2026-08-30T12:00:00Z worker=1 level=info message="listening on 127.0.0.1:8080"
+2026-08-30T12:00:00Z worker=2 level=error message="bind 127.0.0.1:8080: address already in use"
+2026-08-30T12:00:00Z worker=3 level=error message="bind 127.0.0.1:8080: address already in use"
+2026-08-30T12:00:01Z supervisor level=error message="startup failed: 2 workers exited"

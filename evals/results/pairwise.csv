@@ -1,0 +1,4 @@
+id,dimension,baseline,candidate,status,regressions
+gpt-5.5-to-gpt-5.6-sol,model,gpt-5.5-xhigh-baseline,gpt-5.6-sol-xhigh-baseline,pass,
+xhigh-to-high,reasoning_effort,gpt-5.6-sol-xhigh-baseline,gpt-5.6-sol-high-baseline,pass,
+baseline-to-refactored-guidance,prompt,gpt-5.6-sol-xhigh-baseline,gpt-5.6-sol-xhigh-candidate,pass,
