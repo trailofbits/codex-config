@@ -110,8 +110,8 @@ committing, check the row that matches your edit:
 | `profile-template.toml` | `README.md` auth/profile section and installer profile workflow |
 | `hooks/*.sh` | `README.md` hooks section, `config.toml` hook wiring, shell lint output |
 | `rules/default.rules` | `README.md` sandbox/rules section and `codex execpolicy check` output |
-| `.agents/skills/*` | The skill `## Contents`, referenced workflows, and README skill table |
-| Installer discovery or paths | Installer `SKILL.md`, `references/workflow.md`, and README setup |
+| `.agents/skills/*` | The skill entrypoint, conditional references, and README skill table |
+| Installer discovery or paths | Installer `SKILL.md` and README setup |
 
 If a merge from `main` adds global guidance to root `AGENTS.md`, move that
 content to `global-agents.md` unless it is specifically about developing this
@@ -123,8 +123,7 @@ reviewer semantics, resolve the factual drift as part of the conflict.
 - Keep this file repo-specific. Put reusable global agent behavior in
   `global-agents.md`.
 - When an installable component changes, update `README.md` and
-  `.agents/skills/install-codex-config/references/workflow.md` in the same
-  change.
+  `.agents/skills/install-codex-config/SKILL.md` in the same change.
 - When installer discovery or component names change, update
   `.agents/skills/install-codex-config/SKILL.md` too.
 - Keep hooks small, deterministic, and POSIX-friendly Bash with

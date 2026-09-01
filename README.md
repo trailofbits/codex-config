@@ -53,6 +53,8 @@ Before configuring anything, read these to understand why this setup works the w
 - [Codex CLI docs](https://developers.openai.com/codex) -- the official primer; config schema, sandbox model, exec policy, hooks, skills, and CLI flags
 - [GPT-5.6 model guidance](https://developers.openai.com/api/docs/guides/latest-model):
   model tiers, migration guidance, reasoning effort, and prompt design
+- [Build skills](https://learn.chatgpt.com/docs/build-skills): skill discovery, implicit
+  invocation, and progressive disclosure
 - [Codex for Knowledge Work](https://every.to/guides/codex-for-knowledge-work) -- Every's guide to using Codex as a workspace for knowledge work, not just code
 - [Codex-maxxing](https://jxnl.github.io/blog/writing/2026/05/10/codex-maxxing/) -- Jason Liu on durable threads, memory, steering, browser/computer use, goals, and review surfaces
 - [AI-assisted coding for teams that can't get away with vibes](https://blog.nilenso.com/blog/2025/05/29/ai-assisted-coding/) -- Nilenso's playbook for teams integrating AI tools with high standards
@@ -194,8 +196,10 @@ Official docs: [custom instructions with AGENTS.md](https://developers.openai.co
 
 The global `AGENTS.md` at `~/.codex/AGENTS.md` sets default instructions for every Codex session. In this repository, the installable template is `global-agents.md`; the root `AGENTS.md` is only for contributors working on this config repo.
 
-The global template defines working agreements for advice, task scope, approvals, writing,
-engineering, verification, code review, tool choice, greenfield projects, Git, and pull requests.
+The global template contains only rules that apply across tasks: instruction precedence, current
+sources, untrusted input, scope and approvals, preservation of existing behavior, direct
+communication, and relevant validation. Development, durable writing, and security-research detail
+live in implicitly invoked skills so unrelated sessions do not pay for those instructions.
 
 Copy the template into place:
 
@@ -203,7 +207,11 @@ Copy the template into place:
 cp global-agents.md ~/.codex/AGENTS.md
 ```
 
-Codex loads AGENTS.md from `~/.codex/` and from each project directory it traverses, with files closer to the current working directory taking precedence. Run `/status` inside a session to see which AGENTS.md files (and any `CLAUDE.md` fallbacks) are loaded.
+Codex builds the AGENTS chain once when a run starts. It reads the global file, then walks from the
+project root down to the directory where Codex was launched; files closer to that launch directory
+take precedence. A nested `AGENTS.md` is not a dynamic per-file router for files elsewhere in the
+tree. Launch Codex from the relevant subtree when its nested instructions should apply. Run
+`/status` to inspect the loaded chain and any configured `CLAUDE.md` fallback.
 
 For an example of a project-level AGENTS.md, see [crytic/slither/CLAUDE.md](https://github.com/crytic/slither/blob/master/CLAUDE.md) -- the same content works under either name since `project_doc_fallback_filenames` is set.
 
@@ -293,20 +301,34 @@ The hooks block in `config.toml` wires them up. Each hook has a `timeout` (secon
 
 ### Skills
 
-Official docs: [skills](https://developers.openai.com/codex/skills).
+Official docs: [build skills](https://learn.chatgpt.com/docs/build-skills).
 
-Codex skills live in `~/.agents/skills/` and are loaded into the session as workflows the agent can invoke. They're closer to Claude's plugin model than to slash commands -- a skill bundles a `SKILL.md` (the agent-facing instructions) with `references/` (longer-form content the agent loads on demand) and `agents/openai.yaml` (interface metadata).
+Codex skills use progressive disclosure. The initial prompt contains each skill's name and concise
+description. Codex loads the complete `SKILL.md` only when the request matches or the user invokes
+the skill. Keep guidance used by a typical invocation in that entrypoint. Use `references/` only
+when a meaningful branch lets the invocation skip the file, such as a language, PR type, or
+authorized mutation path. A skill can also bundle `agents/openai.yaml` for interface metadata and
+invocation policy.
 
-The `SKILL.md` format is shared across tools, and Codex also reads Claude Code marketplaces and the common `~/.agents/skills/` location, so Trail of Bits skills written for either agent generally work in both. The exception is hooks, which do not reliably port between Codex and Claude -- keep tool-specific guardrails in each tool's own config.
+Repository skills are discovered from `.agents/skills/` along the launch-directory path to the
+repository root. User skills can be installed under `~/.agents/skills/`. Skill descriptions should
+be narrow enough for reliable implicit selection.
 
-Four skills ship in this repo under `.agents/skills/`:
+Six skills ship in this repo under `.agents/skills/`:
 
 | Skill | What it does |
 |-------|--------------|
 | `$install-codex-config` | Installs or updates this Codex configuration from the local repo. Self-installs into `~/.agents/skills/` so it works from any directory after the first run. |
+| `$technical-writing` | Guides durable technical prose. |
+| `$security-research-hygiene` | Validates and records authorized findings. |
 | `$fix-github-issue` | Takes a GitHub issue from triage through PR creation -- research, plan, implement, verify, self-review, push, comment back. |
 | `$merge-dependabot-prs` | Evaluates and merges Dependabot PRs with dependency-aware batching, transitive analysis, build/test verification, and sequential merges. |
 | `$review-and-fix-pr` | Reviews a PR, merges findings from `codex review` and other reviewers, fixes P1-P3 findings, and posts a summary comment. |
+
+For additional maintained workflows and domain expertise, use
+[trailofbits/skills](https://github.com/trailofbits/skills). Use
+[trailofbits/skills-curated](https://github.com/trailofbits/skills-curated) for reviewed third-party
+skills instead of duplicating a fast-moving recommendation catalog here.
 
 Keep `.agents/skills/` at the repo root for project-local use, or copy globally:
 
@@ -314,10 +336,6 @@ Keep `.agents/skills/` at the repo root for project-local use, or copy globally:
 mkdir -p ~/.agents/skills
 cp -R .agents/skills/* ~/.agents/skills/
 ```
-
-#### Authoring
-
-Every `SKILL.md` starts with a short `## Contents` block under the H1 -- a bulleted list of the file's H2 sections plus any referenced files. Codex may only re-load a prefix of an active skill file after a context compaction, so the table of contents is what lets the agent grep to the right section instead of going off-script.
 
 ### MCP Servers
 

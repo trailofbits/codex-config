@@ -1,0 +1,6 @@
+interface:
+  display_name: "Security Research Hygiene"
+  short_description: "Validate and triage authorized security findings."
+  default_prompt: "Use $security-research-hygiene for this authorized audit."
+policy:
+  allow_implicit_invocation: true

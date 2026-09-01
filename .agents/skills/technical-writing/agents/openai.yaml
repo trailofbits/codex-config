@@ -1,0 +1,6 @@
+interface:
+  display_name: "Technical Writing"
+  short_description: "Draft direct, evidence-based technical prose."
+  default_prompt: "Use $technical-writing to revise this technical document."
+policy:
+  allow_implicit_invocation: true
