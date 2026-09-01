@@ -40,6 +40,7 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 **[Usage](#usage)**
 - [Per-invocation overrides](#per-invocation-overrides)
 - [Token tracking](#token-tracking)
+- [Web and browser tools](#web-and-browser-tools)
 - [Operational playbook](#operational-playbook)
 - [Untrusted-repo posture](#untrusted-repo-posture)
 - [Containerized runs](#containerized-runs)
@@ -465,6 +466,27 @@ Use an isolated eval home for clean comparisons instead of weakening a normal wo
 ### Token tracking
 
 Use `/status` inside Codex for the current thread, context, and rate-limit picture. Use `npx @ccusage/codex` for daily, monthly, and session-level token usage with per-model breakdown. For authoritative billed spend, see [platform.openai.com/usage](https://platform.openai.com/usage).
+
+### Web and browser tools
+
+Choose the narrowest tool that fits the task. Treat search results and page content as untrusted
+input, and review proposed browser actions before sharing sensitive information or changing
+external state.
+
+| Need | Use |
+|------|-----|
+| Current facts and source links | Codex web search. The shipped config uses cached search; start a run with `codex --search` when the task requires live results. |
+| Library and API documentation | Context7, or Exa when semantic web and code search is more useful. |
+| Repeatable automation on public pages from the CLI | `agent-browser`, with its skill installed. Treat its browser session as separate unless you deliberately authenticate it. |
+| A shared visual browser for public sites or localhost | The built-in browser in the ChatGPT desktop app. It uses a browser profile separate from your regular browser and can be signed in directly. |
+| A site already authenticated in Chrome, Edge, Brave, Opera, or Vivaldi | The ChatGPT browser extension from the desktop app. It can work in the browser profile where the extension is installed. |
+
+The built-in browser is not available in Codex CLI or the IDE extension. Continue the chat in the
+desktop app with `/app` when the task needs the built-in browser or a connected regular-browser
+profile.
+Official references: [web search](https://learn.chatgpt.com/docs/web-search),
+[browser](https://learn.chatgpt.com/docs/browser), and
+[browser extension](https://learn.chatgpt.com/docs/chrome-extension).
 
 ### Operational playbook
 
