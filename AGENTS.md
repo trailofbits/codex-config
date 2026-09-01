@@ -144,23 +144,20 @@ reviewer semantics, resolve the factual drift as part of the conflict.
 
 ## Validation
 
-Run the focused checks that match the files changed:
+For prompt, config, installer, hook, rule, or skill changes, run the standard
+repository check:
 
 ```bash
-shellcheck hooks/*.sh
-shfmt -d hooks/*.sh
-codex execpolicy check --pretty --rules rules/default.rules -- git status
-git diff --check
+scripts/check.sh
 ```
 
-When `config.toml`, `mcp-template.toml`, or `profile-template.toml` changes,
-also validate TOML syntax and run a strict Codex config check when practical.
-Document expected environment-only warnings, such as missing auth in a throwaway
-test home.
+The script includes TOML assertions, prompt and skill invariants, dynamic
+installer discovery, shell lint, strict Codex config loading, skill validation,
+exec-policy checks, and working-tree, index, and branch whitespace checks. Document
+environment-only doctor warnings, such as missing auth in its throwaway test home.
 
-When editing only Markdown, run at least `git diff --check` and scan for stale
-references to old install paths, other-tool-specific terms, outdated model names, or
-Codex settings not present in the shipped templates.
+For an unrelated Markdown-only edit, `git diff --check` plus a stale-reference
+scan remains sufficient when none of the shipped prompt/config surfaces change.
 
 ## Pull requests
 

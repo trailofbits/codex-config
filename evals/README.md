@@ -8,7 +8,7 @@ without making model calls from repository checks or CI.
 Set either `OPENAI_API_KEY` or `CODEX_ACCESS_TOKEN`, then run:
 
 ```bash
-uv run --script evals/evaluate.py run \
+uv run --frozen python evals/evaluate.py run \
   --baseline-ref b62e2e2 \
   --candidate-ref <candidate-ref> \
   --runs 1

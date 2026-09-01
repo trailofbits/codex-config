@@ -29,6 +29,7 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 - [Sandboxing](#sandboxing)
 - [Hooks](#hooks)
 - [Skills](#skills)
+- [Validation](#validation)
 - [MCP Servers](#mcp-servers)
 
 **[/goal](#goal)**
@@ -339,6 +340,21 @@ Keep `.agents/skills/` at the repo root for project-local use, or copy globally:
 mkdir -p ~/.agents/skills
 cp -R .agents/skills/* ~/.agents/skills/
 ```
+
+### Validation
+
+Run the repository check entrypoint after prompt, config, installer, hook, rule, or skill changes:
+
+```bash
+scripts/check.sh
+```
+
+It parses and asserts the shipped TOML defaults, enforces the global-guidance budget, validates
+skill routing and references, tests dynamic installer discovery, checks documentation for stale
+model IDs, lints shell files, runs a strict Codex config-load check, validates every skill,
+exercises the exec policy, and checks whitespace in the working tree, index, and committed branch.
+Model-backed evaluations remain opt-in; see
+[`evals/README.md`](evals/README.md).
 
 ### MCP Servers
 

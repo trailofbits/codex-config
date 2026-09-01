@@ -63,7 +63,8 @@ the user choose.
   - Source: `<source-root>/rules/default.rules`
   - Target: `~/.codex/rules/default.rules`
 - **Skills**: reusable Codex workflows, including project-aware development configuration examples.
-  - Discover sources with `<source-root>/scripts/list_skills.py <source-root>`.
+  - Discover sources with
+    `uv run --frozen python <source-root>/scripts/list_skills.py <source-root>`.
   - Each reported `.../<name>/SKILL.md` maps to `~/.agents/skills/<name>/SKILL.md`; copy its
     complete skill directory.
 
