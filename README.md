@@ -314,11 +314,12 @@ Repository skills are discovered from `.agents/skills/` along the launch-directo
 repository root. User skills can be installed under `~/.agents/skills/`. Skill descriptions should
 be narrow enough for reliable implicit selection.
 
-Six skills ship in this repo under `.agents/skills/`:
+Seven skills ship in this repo under `.agents/skills/`:
 
 | Skill | What it does |
 |-------|--------------|
 | `$install-codex-config` | Installs or updates this Codex configuration from the local repo. Self-installs into `~/.agents/skills/` so it works from any directory after the first run. |
+| `$development-standards` | Routes code standards by language and file type. |
 | `$technical-writing` | Guides durable technical prose. |
 | `$security-research-hygiene` | Validates and records authorized findings. |
 | `$fix-github-issue` | Takes a GitHub issue from triage through PR creation -- research, plan, implement, verify, self-review, push, comment back. |
