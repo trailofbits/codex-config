@@ -41,6 +41,7 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 - [Per-invocation overrides](#per-invocation-overrides)
 - [Token tracking](#token-tracking)
 - [Web and browser tools](#web-and-browser-tools)
+- [Session lifecycle](#session-lifecycle)
 - [Operational playbook](#operational-playbook)
 - [Untrusted-repo posture](#untrusted-repo-posture)
 - [Containerized runs](#containerized-runs)
@@ -487,6 +488,28 @@ profile.
 Official references: [web search](https://learn.chatgpt.com/docs/web-search),
 [browser](https://learn.chatgpt.com/docs/browser), and
 [browser extension](https://learn.chatgpt.com/docs/chrome-extension).
+
+### Session lifecycle
+
+Keep one coherent objective in a chat. Use the session control that preserves the right amount of
+context:
+
+- Use `/side` for a focused question or detour whose transcript should stay separate from the main
+  chat. Return to the parent chat when the detour is done.
+- Use `/fork` to explore an alternative from the current chat without changing the original. Run
+  `codex fork` to choose a saved session, or `codex fork --last` to fork the most recent session in
+  the current directory.
+- Use `codex resume` to choose and continue a saved interactive session. Use
+  `codex resume --last` when the most recent session in the current directory is the intended one.
+- Use `/goal` when one bounded objective should continue across turns. Keep decisions, plans, and
+  progress that another session or person must recover in repository files rather than relying on
+  transcript history alone.
+- Archive finished sessions with `codex archive <session-id-or-name>`. Restore one with
+  `codex unarchive <session-id-or-name>`. Reserve `codex delete` for sessions you intend to remove
+  permanently.
+
+See the official [developer command reference](https://learn.chatgpt.com/docs/developer-commands?surface=cli)
+for current CLI and slash-command behavior.
 
 ### Operational playbook
 
