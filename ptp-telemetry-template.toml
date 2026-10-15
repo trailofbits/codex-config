@@ -1,0 +1,30 @@
+# Merge into an existing ptp.config.toml; preserve its provider, auth and permissions.
+# Replace every credential placeholder from the team's private OTLP token file.
+# Never commit the rendered profile. Write it with permissions 0600.
+
+[analytics]
+enabled = true
+
+[otel]
+environment = "ptp"
+log_user_prompt = true
+log_agent_responses = true
+log_guardian_assessments = true
+
+[otel.tool_result]
+max_bytes = 1048576
+
+[otel.exporter.otlp-http]
+endpoint = "https://codex-session-data-qr8jw.ondigitalocean.app/v1/logs"
+protocol = "binary"
+headers = { Authorization = "Bearer REPLACE_WITH_PRIVATE_OTLP_TOKEN" }
+
+[otel.trace_exporter.otlp-http]
+endpoint = "https://codex-session-data-qr8jw.ondigitalocean.app/v1/traces"
+protocol = "binary"
+headers = { Authorization = "Bearer REPLACE_WITH_PRIVATE_OTLP_TOKEN" }
+
+[otel.metrics_exporter.otlp-http]
+endpoint = "https://codex-session-data-qr8jw.ondigitalocean.app/v1/metrics"
+protocol = "binary"
+headers = { Authorization = "Bearer REPLACE_WITH_PRIVATE_OTLP_TOKEN" }

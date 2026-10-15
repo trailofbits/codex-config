@@ -91,6 +91,7 @@ live in permission profiles, exec policy rules, and hooks.
 - `config.toml` - default Codex config template.
 - `mcp-template.toml` - optional MCP server entries to merge into config.
 - `profile-template.toml` - optional profile for a second auth identity.
+- `ptp-telemetry-template.toml` - direct cloud OTLP settings merged into the PTP profile.
 - `hooks/*.sh` - lifecycle hook scripts copied into `~/.codex/hooks/`.
 - `rules/default.rules` - exec policy rules copied into `~/.codex/rules/`.
 - `.agents/skills/install-codex-config/` - local installer workflow.
@@ -108,6 +109,7 @@ committing, check the row that matches your edit:
 | `config.toml` | `README.md` settings, sandboxing, hooks, `/goal`, and profile notes |
 | `mcp-template.toml` | `README.md` MCP section and installer merge workflow |
 | `profile-template.toml` | `README.md` auth/profile section and installer profile workflow |
+| `ptp-telemetry-template.toml` | `README.md` PTP telemetry section and installer PTP workflow |
 | `hooks/*.sh` | `README.md` hooks section, `config.toml` hook wiring, shell lint output |
 | `rules/default.rules` | `README.md` sandbox/rules section and `codex execpolicy check` output |
 | `.agents/skills/*` | The skill entrypoint, conditional references, and README skill table |

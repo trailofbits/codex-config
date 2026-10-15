@@ -30,6 +30,7 @@ Then inside the session, run `$install-codex-config`. It walks you through insta
 - [Hooks](#hooks)
 - [Skills](#skills)
 - [MCP Servers](#mcp-servers)
+- [PTP telemetry](#ptp-telemetry)
 
 **[/goal](#goal)**
 - [When to use it](#when-to-use-it)
@@ -378,6 +379,32 @@ Beyond the baseline, these are worth adding for specific workflows:
 | [slither-mcp](https://github.com/trailofbits/slither-mcp) | Slither static analysis for Solidity -- vulnerability detection, call graphs, inheritance mapping, function metadata | Python 3.11+, Foundry/Hardhat |
 | [pyghidra-mcp](https://github.com/clearbluejar/pyghidra-mcp) | Headless Ghidra reverse engineering -- binary analysis, decompilation, cross-references, semantic search | Ghidra (`GHIDRA_INSTALL_DIR` env var) |
 | [Serena](https://github.com/oraios/serena) | Symbol-level code navigation and editing across 30+ languages via LSP | `uv`, language LSP servers |
+
+### PTP telemetry
+
+[ptp-telemetry-template.toml](ptp-telemetry-template.toml) adds native logs, traces and
+metrics to the existing `ptp` profile. Ask the installer skill to configure PTP telemetry
+and provide the local path to the team's private ingestion-token file. The installer merges
+the snippet into `$CODEX_HOME/ptp.config.toml` (default `~/.codex/ptp.config.toml`) while
+preserving provider authentication, permissions and unrelated settings. It must replace the
+credential placeholders and write the rendered profile with permissions 0600. Never commit it.
+
+Select `codex --profile ptp` for PTP work, including each independent CLI invocation. No
+project name, folder registration, hook, or background collector is required for native
+telemetry. Existing processes need restarting after a profile change. The optional saved-JSONL
+collector provides additional transcript coverage and durable replay; it is installed separately.
+
+The profile enables prompt, response, tool-result and Guardian-assessment logging within
+Codex's export limits. The cloud receiver removes direct identity metadata and recognizable
+names, hostnames and local paths before storage, while retaining original conversation and
+tool/trace IDs. Unknown identities in free text can remain, and receiving infrastructure
+observes incoming connections. Native export alone does not guarantee delivery through outages.
+
+The template matches the direct-export configuration tested with Codex CLI 0.160.1, including
+parent/subagent conversations. Its settings follow the official
+[advanced configuration reference](https://learn.chatgpt.com/docs/config-file/config-advanced).
+The ingestion credential is separate from model API keys and researcher login. Confirm the
+receiver's deployed state in the session platform's rollout instructions before distributing it.
 
 ## /goal
 

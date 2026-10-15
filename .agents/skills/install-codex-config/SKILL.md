@@ -4,7 +4,7 @@ description: >-
   Install or update this organization's Codex configuration from repo-local
   files into the user's Codex home. Use when asked to set up, install, update,
   bootstrap, or sync this Codex configuration, including the global AGENTS
-  template, config.toml, hooks, rules, MCP servers, profile templates, and
+  template, config.toml, hooks, rules, MCP servers, profile templates, PTP telemetry, and
   bundled skills.
 ---
 
@@ -56,6 +56,11 @@ the user choose.
   ChatGPT-plan login.
   - Source: `<source-root>/profile-template.toml`
   - Target: copy to `~/.codex/<name>.config.toml` using the user's name or `api` by default.
+- **PTP telemetry**: native logs, traces and metrics sent directly to the shared receiver.
+  - Source: `<source-root>/ptp-telemetry-template.toml`
+  - Target: merge into `$CODEX_HOME/ptp.config.toml` (default `~/.codex/ptp.config.toml`).
+  - Requires an existing PTP authentication profile and a private ingestion-token file.
+  - No background collector, folder registration or project-specific profile is needed.
 - **Hooks**: command policy, package manager enforcement, and GAM mutation logging.
   - Source: `<source-root>/hooks/*.sh`
   - Target: `~/.codex/hooks/*.sh`
@@ -98,6 +103,9 @@ Ask for confirmation. If the environment supports a structured selection UI, use
 a single concise question and accept a comma-separated list such as
 `agents, config, mcp, hooks, rules, skills, all`.
 
+When the user has already selected and authorized these components, proceed with that scope
+following the merge summary; do not request the same authorization again.
+
 ## Install rules
 
 ### AGENTS.md
@@ -133,6 +141,30 @@ of that name without confirmation. Remind the user to create the key file the pr
 template uses `~/.codex/api-key.txt`. Never commit API keys. If the user chose a non-default name,
 update the `api-key.txt` path in the copied profile's `auth.command` to match. Select the profile at
 runtime with `codex --profile <name>`; do not merge it into `config.toml`.
+
+### PTP telemetry
+
+When setting up PTP collection, read `ptp-telemetry-template.toml` from the local source
+root. Inspect the existing `ptp.config.toml` without printing its authentication values.
+If it is missing, complete PTP authentication setup first; do not invent or replace it.
+
+Read the shared ingestion credential from the private local file supplied by the platform
+administrator. If its location is missing, request a file path, not the secret itself.
+Verify owner-only file permissions. This credential is separate from the model API key and
+researcher login. Never substitute either of those credentials.
+
+Replace all three `REPLACE_WITH_PRIVATE_OTLP_TOKEN` placeholders using TOML-safe serialization.
+Merge the template's `otel` table and `analytics.enabled` into the PTP profile. Preserve all
+other analytics settings, provider/authentication keys, model overrides, permissions, comments,
+and unrelated tables. Summarize the three endpoint URLs and enabled content settings before
+writing; redact credentials in any preview. Write atomically with permissions 0600 and validate
+the resulting TOML. Refuse to install a profile with unresolved credential placeholders.
+
+Do not append this snippet to the global `config.toml` or a project-local `.codex/config.toml`.
+Do not install a daemon or hooks for this component. A user selects `codex --profile ptp`
+for each independent PTP invocation. Restart existing Codex processes after changing it.
+The native exporter has bounded buffers; it does not provide durable local replay through
+an outage. Optional saved-transcript collection is a separate installation.
 
 ### Hooks
 
