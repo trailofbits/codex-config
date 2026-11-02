@@ -122,8 +122,10 @@ reviewer semantics, resolve the factual drift as part of the conflict.
 
 - Keep this file repo-specific. Put reusable global agent behavior in
   `global-agents.md`.
-- When an installable component changes, update `README.md` and
-  `.agents/skills/install-codex-config/SKILL.md` in the same change.
+- When a change makes `README.md` or
+  `.agents/skills/install-codex-config/SKILL.md` inaccurate or incomplete, update
+  the affected file in the same change. This includes significant additions
+  that users need to install, configure, or understand.
 - When installer discovery or component names change, update
   `.agents/skills/install-codex-config/SKILL.md` too.
 - Keep hooks small, deterministic, and POSIX-friendly Bash with
