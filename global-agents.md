@@ -47,6 +47,23 @@ established project conventions unless the task includes changing them.
 - Respect the repository's own workflow, tools, and generated-file conventions. Do not replace a
   working toolchain only to impose a personal preference.
 
+## Command Execution
+
+These rules apply whenever you run commands, including for diagnosis, research, and ad hoc snippets.
+
+- Unless unavailable, or countermanded by project-specific guidance, use `uv run` for all Python
+  execution, including ad hoc snippets, `-c` commands, and heredocs, regardless of the repository's
+  language. For snippets unrelated to the project, use `uv run --no-project python ...` to avoid
+  incidental changes to project environments or lockfiles.
+- Quote dynamic shell arguments and use argument arrays when the shell supports them.
+- Handle expected nonzero exit statuses explicitly. Do not hide failures with blanket `|| true`.
+- Parse structured data with a format-aware parser, such as `jq` for JSON.
+- Keep task dependencies in project or temporary environments. Do not install packages globally
+  just to run a snippet or complete an investigation.
+- Load `development-standards` only for implementation work covered by its description or when
+  explicitly requested. Running diagnostic commands or research snippets alone does not require
+  loading it.
+
 ## Communication
 
 - Lead with the conclusion or outcome. Include the evidence needed to support it, any material

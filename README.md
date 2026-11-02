@@ -197,9 +197,9 @@ Official docs: [custom instructions with AGENTS.md](https://developers.openai.co
 The global `AGENTS.md` at `~/.codex/AGENTS.md` sets default instructions for every Codex session. In this repository, the installable template is `global-agents.md`; the root `AGENTS.md` is only for contributors working on this config repo.
 
 The global template contains only rules that apply across tasks: instruction precedence, current
-sources, untrusted input, scope and approvals, preservation of existing behavior, direct
-communication, and relevant validation. Development, durable writing, and security-research detail
-live in implicitly invoked skills so unrelated sessions do not pay for those instructions.
+sources, untrusted input, scope and approvals, preservation of existing behavior, command execution,
+direct communication, and relevant validation. Development, durable writing, and security-research
+detail live in implicitly invoked skills so unrelated sessions do not pay for those instructions.
 
 Copy the template into place:
 
