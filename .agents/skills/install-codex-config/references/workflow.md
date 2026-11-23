@@ -22,9 +22,18 @@ from GitHub or any remote URL.
 Offer these components to the user. Mark missing target components as
 recommended, but still let the user choose.
 
-- **AGENTS.md** - global Codex development standards.
+- **AGENTS.md** - global Codex development standards, including the route to
+  the PTP API-key review worker for user-authorized PTP projects. The
+  installer copies guidance only; it does not install an API key.
   - Source: `<source-root>/global-agents.md`
   - Target: `~/.codex/AGENTS.md`
+
+- **PTP worker AGENTS.md** (optional) - compact guidance for the separate
+  PTP API-key Codex home. Offer it when that home exists or the user requests
+  PTP setup. It does not copy or configure the API key.
+  - Source: `<source-root>/ptp-codex-agents.md`
+  - Target: `~/.config/ptp-codex/AGENTS.md` by default, or the user's
+    configured PTP `CODEX_HOME`
 
 - **config.toml** - model defaults, permissions, hooks, UI, analytics, history,
   and feature flags.
@@ -59,6 +68,7 @@ recommended, but still let the user choose.
 Read or check these target paths:
 
 - `~/.codex/AGENTS.md`
+- `~/.config/ptp-codex/AGENTS.md` when the PTP home exists
 - `~/.codex/config.toml`
 - `~/.codex/hooks/block-dangerous-command.sh`
 - `~/.codex/hooks/enforce-package-manager.sh`
@@ -93,6 +103,14 @@ list such as `agents, config, mcp, hooks, rules, skills, all`.
 If `~/.codex/AGENTS.md` is missing, install `global-agents.md` from the source
 root. If it exists, show the user a diff or concise summary and ask whether to
 overwrite, skip, or merge manually. Do not silently overwrite it.
+
+### PTP worker AGENTS.md
+
+When selected, preview the target and copy `ptp-codex-agents.md` into the
+dedicated PTP `CODEX_HOME` as `AGENTS.md`. Preserve existing PTP-home
+customizations through a manual merge. Do not copy the full global template:
+combined with a large project AGENTS file, it may exceed the instruction-size
+limit. Do not read or modify the PTP home's `auth.json` or API-key file.
 
 ### config.toml
 

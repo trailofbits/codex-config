@@ -13,9 +13,8 @@
 # update the api-key.txt path in the auth command below to match.
 
 model_provider = "openai-api"
-# Optional: pin a model for this identity, e.g. a -cyber model that needs an
-# API key from Trusted Access Cyber rather than a ChatGPT subscription.
-# model = "gpt-5.5-cyber-preview"
+# Optional: pin a model supported by this identity. Use the dedicated PTP
+# worker guide for PTP Cyber model and access-program selection.
 
 [model_providers.openai-api]
 name = "OpenAI with API key"

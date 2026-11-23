@@ -88,6 +88,7 @@ live in permission profiles, exec policy rules, and hooks.
 ## File map
 
 - `global-agents.md` - global `~/.codex/AGENTS.md` template for new installs.
+- `ptp-codex-agents.md` - compact global guidance for the isolated PTP API-key home.
 - `config.toml` - default Codex config template.
 - `mcp-template.toml` - optional MCP server entries to merge into config.
 - `profile-template.toml` - optional profile for a second auth identity.
@@ -105,6 +106,7 @@ committing, check the row that matches your edit:
 | If you change | Also check |
 |---------------|------------|
 | `global-agents.md` | `README.md` global AGENTS section and installer component text |
+| `ptp-codex-agents.md` | PTP worker guide, README, and installer component text |
 | `config.toml` | `README.md` settings, sandboxing, hooks, `/goal`, and profile notes |
 | `mcp-template.toml` | `README.md` MCP section and installer merge workflow |
 | `profile-template.toml` | `README.md` auth/profile section and installer profile workflow |

@@ -28,10 +28,12 @@ current machine.
    - Otherwise, if the repo root contains `config.toml` and
      `global-agents.md`, use the repo root. This is the expected layout after
      extracting `codex-config/` into its own repository.
-4. Inventory the target Codex files and ask the user which components to
-   install or update before writing outside the repository.
-5. Preview merges for existing `~/.codex/config.toml` and `~/.codex/AGENTS.md`;
-   never silently overwrite likely user-customized files.
+4. Inventory the target Codex files, including a separate PTP home when
+   present, and ask the user which components to install or update before
+   writing outside the repository.
+5. Preview merges for existing `~/.codex/config.toml`, `~/.codex/AGENTS.md`,
+   and a selected PTP-home `AGENTS.md`; never silently overwrite likely
+   user-customized files.
 6. Install selected components into Codex paths, then summarize what changed and
    any follow-up needed for MCP credentials.
 

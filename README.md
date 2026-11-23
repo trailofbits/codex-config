@@ -145,14 +145,11 @@ npm install -g oxlint agent-browser
 
 ### Shell Setup
 
-Add to `~/.zshrc`:
-
-```bash
-alias codex-cyber-preview='codex -m gpt-5.5-cyber-preview --config model_reasoning_effort="xhigh"'
-alias codex-cyber='codex -m gpt-5.4-cyber --config model_reasoning_effort="xhigh"'
-```
-
-The `-cyber` models require `OPENAI_API_KEY` from Trusted Access Cyber, not a ChatGPT subscription. Use them when `gpt-5.5` refuses (exploit shells, offensive code, malware analysis): quit the session, resume with one of these, run a few turns to establish context, then switch back to `codex` -- once context is in place, `gpt-5.5` typically continues without refusing.
+Model-only shell aliases do not select the PTP API key or Daybreak Red. For
+user-authorized PTP work, use the isolated home and launcher in the
+[PTP worker guide](https://github.com/trailofbits/ptp-findings-review/blob/main/docs/ptp-api-cli-worker.md).
+The launcher checks authentication, the model, and the access program before
+starting a review. Keep unrelated Codex sessions on their usual login.
 
 ### Settings
 
@@ -185,6 +182,15 @@ Official docs: [custom instructions with AGENTS.md](https://developers.openai.co
 The global `AGENTS.md` at `~/.codex/AGENTS.md` sets default instructions for every Codex session. In this repository, the installable template is `global-agents.md`; the root `AGENTS.md` is only for contributors working on this config repo.
 
 The global template covers development philosophy (no speculative features, no premature abstraction, replace don't deprecate), code quality hard limits (function length, complexity, line width), language-specific toolchains for Python (`uv`, `ruff`, `ty`), Node/TypeScript (`oxlint`, `vitest`), Rust (`clippy`, `cargo deny`), Bash, GitHub Actions, plus testing methodology, code review order, untrusted-repo posture, skill authoring conventions, and workflow rules.
+
+For user-authorized Patch the Planet reviews, it also points agents to the
+[PTP API-key worker guide](https://github.com/trailofbits/ptp-findings-review/blob/main/docs/ptp-api-cli-worker.md).
+That guide runs the full reviewer on the approved API key. Parallel runs use
+separate `results/` worktrees and claims; begin with one or two and inspect
+API usage before increasing concurrency.
+The separate PTP `CODEX_HOME` reads its own global AGENTS file, so install
+[ptp-codex-agents.md](ptp-codex-agents.md) there. This compact file leaves room
+for the findings repo's project instructions within Codex's default limit.
 
 Copy the template into place:
 
@@ -473,8 +479,17 @@ For full isolation -- a wholly separate config home with its own `AGENTS.md`, sk
 
 ```bash
 mkdir -p "$HOME/.codex-api"
-alias codex-api='CODEX_HOME=$HOME/.codex-api codex -m gpt-5.5-cyber-preview'
+alias codex-api='CODEX_HOME=$HOME/.codex-api codex'
 ```
+
+For PTP Cyber work, use the project launcher instead of this generic alias so
+the key, model, access program, and private usage logs are checked before a
+review starts. Invoke the launcher separately for each project worktree to
+run multiple CLI processes. Install [ptp-codex-agents.md](ptp-codex-agents.md) at the
+dedicated home's `AGENTS.md`; that home does not inherit `~/.codex/AGENTS.md`.
+Run a two-worker pilot before sustained parallel work. Confirm each worker
+can reach the evidence sources it needs: API-key login here does not carry
+this account's ChatGPT-connected MCP servers into the isolated home.
 
 On Linux VPS images without a working secret-service backend, switch both credential stores to `"auto"`:
 
